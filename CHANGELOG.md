@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.1] — 2026-10-07
+
 ### Changed
 
 - **Fine adjustment is off by default** — a still press on a ruler no longer zooms it to a tenth of its range,
