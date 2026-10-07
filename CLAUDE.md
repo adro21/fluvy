@@ -55,10 +55,27 @@ and explain in plain language.
    same zip and re-attaches it to the same release. That is harmless; confirm with `gh run list --repo adro21/fluvy`
    that it ended green and the asset is still listed.
 
+10. Install it on the house: see the next section.
+
 Fallback if the API refuses the release or the upload: on github.com, in the fork, *Releases → Draft a new release*,
 tag `vX.Y.Z` targeting `main`, publish; the *Release* workflow builds and attaches `fluvy.zip`.
 
-## After a release (owner's side)
+## Installing a release on the owner's Home Assistant (from here, over the API)
 
-In HACS, open Fluvy, click *Update* (or *Redownload* and pick the version), then restart Home Assistant and
-hard-refresh the browser. The fork is registered in HACS as a custom repository of type *Integration*.
+A **local** session (on the owner's Mac) reaches his Home Assistant at `http://homeassistant.local` (no port). The
+long-lived token is in `~/.config/fluvy/ha.env` (`HA_URL=…`, `HA_TOKEN=…`), owner-readable only; it is never
+committed, printed or sent anywhere but that address. A cloud session cannot reach the house: then the owner clicks
+*Update* in HACS and restarts.
+
+`tools/dev/ha.mjs` does the HACS side (worked on 2026-10-07):
+
+```sh
+node tools/dev/ha.mjs status            # HA version, what HACS has, what is loaded, the resource URL
+node tools/dev/ha.mjs download vX.Y.Z   # HACS refreshes the fork's releases and downloads that one
+node tools/dev/ha.mjs restart           # restarts Home Assistant and waits until it is back
+node tools/dev/ha.mjs add               # re-adds the integration if it was deleted
+node tools/dev/ha.mjs status            # confirm "Loaded: X.Y.Z" and the resource URL carries X.Y.Z
+```
+
+Then tell the owner to hard-refresh the browser (Cmd + Shift + R). The fork is registered in HACS as a custom
+repository of type *Integration* (`adro21/fluvy`); the original `acosta290/fluvy` was removed from HACS.
