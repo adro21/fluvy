@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A tile's shade ruler stays where the finger put it** while the shade travels. A shade that reports its position
+  only once its motor stops (Matter shades do, after three to fifteen seconds) made the tile's knob fall back to
+  where the shade started a few seconds after the drag, then catch up when the motor stopped; the tile now keeps
+  the position asked for while the cover says it is opening or closing, as the cover card does, and lets it go a
+  few seconds after the cover stops elsewhere.
+
 ## [1.5.1] — 2026-10-07
 
 ### Changed

@@ -49,6 +49,7 @@ import {
 import { toneOf } from '../shared/colour.js';
 import { configKeys } from '../shared/config.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
+import { Hold } from '../cover/common.js';
 
 export type TileSize = 'large' | 'compact' | 'mini';
 export const TILE_SIZES: readonly TileSize[] = ['large', 'compact', 'mini'];
@@ -85,6 +86,8 @@ const LIGHT_BRIGHTNESS_MODES = new Set([
   'white',
 ]);
 const COVER_SET_POSITION = 4;
+/** A reported position within a percent of the one asked for is the one asked for. */
+const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1;
 const FAN_SET_SPEED = 1;
 const MORE_INFO: ActionConfig = { action: 'more-info' };
 const TOGGLE: ActionConfig = { action: 'toggle' };
@@ -218,6 +221,26 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     return [this.config?.entity ?? '', ...(this.config?.readouts ?? [])];
   }
 
+  /**
+   * Where each cover was told to go, drawn until it reports it — kept while the cover says it is travelling,
+   * however long that takes (a shade reports its position once the motor stops, many seconds after the finger
+   * let go), as the cover card keeps its own; let go a few seconds after it stops elsewhere. One per entity:
+   * a group of tiles may hold several covers.
+   */
+  private readonly headings = new Map<string, Hold<number>>();
+
+  private heading(id: string): Hold<number> {
+    let hold = this.headings.get(id);
+    if (!hold) {
+      hold = new Hold<number>(this, () => {
+        const state = this.entity(id).state;
+        return state === 'opening' || state === 'closing';
+      });
+      this.headings.set(id, hold);
+    }
+    return hold;
+  }
+
   /** What the foot ruler controls for this entity, if anything. */
   private level(
     view: EntityView,
@@ -233,9 +256,13 @@ export class FluvyTileCard extends Card<TileCardConfig> {
       };
     }
     if (view.domain === 'cover' && view.supports(COVER_SET_POSITION)) {
+      const heading = this.heading(view.id);
       return {
-        value: view.attr<number>('current_position') ?? 0,
-        commit: (v) => this.call('cover', 'set_cover_position', { position: v }, view.id),
+        value: heading.read(view.attr<number>('current_position') ?? 0, near),
+        commit: (v) => {
+          heading.set(v);
+          this.call('cover', 'set_cover_position', { position: v }, view.id);
+        },
         label: this.t('cover.position'),
       };
     }
