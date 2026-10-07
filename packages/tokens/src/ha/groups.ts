@@ -1,4 +1,5 @@
 import { NAMED_COLORS, statusRamp, THEME_COLOR_NAMES } from './named.js';
+import { composite } from '../color/contrast.js';
 import { cssVar, THEME_SENTINEL } from '../config.js';
 import { fontFamily, fontSize, fontWeight, lineHeight, type RadiusName } from '../scales/index.js';
 import { RAMP_STEPS, STATE_KEYS, type PaletteModeColors, type StateKey } from '../types.js';
@@ -30,6 +31,15 @@ const dark = (colors: PaletteModeColors): boolean => colors.mode === 'dark';
  */
 const onAccentFill = (c: PaletteModeColors): string =>
   c.character === 'vivid' ? c.accent.onFill : c.accent.ink;
+
+/**
+ * The share of a role's ink a quiet plate carries over the card: Home Assistant's `fill-*-quiet` is a faint tint
+ * of the colour whose `on-*-quiet` ink it draws on the plate AND straight on a menu or a card (a Delete item,
+ * a quiet badge), so the ink is the role's ink on the page and the plate is faint enough for that ink to read.
+ */
+const QUIET_TINT = 0.14;
+const quietFill = (c: PaletteModeColors, role: 'success' | 'warning' | 'danger'): string =>
+  composite(c.semantic[role].ink, c.surface.card, QUIET_TINT);
 
 /** One of our radii, by reference: `ours('card')` → `var(--fluvy-radius-card)`. */
 const ours = (name: RadiusName): string => `var(${cssVar(`radius-${name}`)})`;
@@ -351,15 +361,15 @@ export const HA_GROUPS: readonly HaGroup[] = [
             ['--ha-color-on-primary-normal', c.buttons.on],
           ] as const)
         : []),
-      ['--ha-color-fill-success-quiet-resting', c.semantic.success.fill],
-      ['--ha-color-fill-warning-quiet-resting', c.semantic.warning.fill],
-      ['--ha-color-fill-danger-quiet-resting', c.semantic.danger.fill],
+      ['--ha-color-fill-success-quiet-resting', quietFill(c, 'success')],
+      ['--ha-color-fill-warning-quiet-resting', quietFill(c, 'warning')],
+      ['--ha-color-fill-danger-quiet-resting', quietFill(c, 'danger')],
       ['--ha-color-on-primary-quiet', c.character === 'vivid' ? c.buttons.on : c.accent.onFill],
       ['--ha-color-on-primary-loud', c.character === 'vivid' ? c.primary.on : c.text.onAccent],
       ['--ha-color-on-neutral-quiet', c.text.primary],
-      ['--ha-color-on-success-quiet', c.semantic.success.onFill],
-      ['--ha-color-on-warning-quiet', c.semantic.warning.onFill],
-      ['--ha-color-on-danger-quiet', c.semantic.danger.onFill],
+      ['--ha-color-on-success-quiet', c.semantic.success.ink],
+      ['--ha-color-on-warning-quiet', c.semantic.warning.ink],
+      ['--ha-color-on-danger-quiet', c.semantic.danger.ink],
       ['--ha-color-focus', c.accent.ink],
       ['--ha-color-fill-disabled-quiet-resting', c.surface.page],
       ['--ha-color-fill-disabled-normal-resting', c.surface.page],

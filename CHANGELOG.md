@@ -5,6 +5,16 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Delete reads again** in Home Assistant's menus in dark mode: the theme gave Home Assistant's "quiet" danger,
+  warning and success tokens a chip's pairing (a solid pastel plate with a dark ink), while Home Assistant draws
+  that ink straight on a dark menu — a near-black "Delete". The tokens are now the role's ink on the page over a
+  faint tint of itself, in both modes.
+- **Icons show in the pickers**: a picker row's icon circle (the icon picker, the entity pickers) took the accent's
+  fill under the accent's own colour, which on an electric palette are the same colour — a plain disc and no glyph.
+  The circle is now a resting icon circle, as the cards draw one.
+
 ## [1.5.2] — 2026-10-07
 
 ### Fixed
