@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.2] — 2026-10-07
+
 ### Fixed
 
 - **A tile's shade ruler stays where the finger put it** while the shade travels. A shade that reports its position
