@@ -60,6 +60,8 @@ export type RowStyle = 'chips' | 'full';
 export interface ThermostatCardConfig extends FluvyCardConfig {
   show_presets?: boolean;
   show_fan?: boolean;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
   /** `dial` (default): the ring. `compact`: the target as a readout with its stepper, no dial. `ruler`: the readout, the stepper and a horizontal ruler. */
   variant?: ThermostatVariant;
   /** The modes to show, in this order (`['off', 'heat', 'cool']`). Default: every mode the entity offers. */
@@ -176,6 +178,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
     'modes_style',
     'preset_style',
     'fan_style',
+    'fine_adjust',
   ]);
   static override getConfigForm(): LovelaceConfigForm {
     return {
@@ -201,6 +204,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
         },
         fieldRow(boolField('show_presets'), selectField('preset_style', ['full', 'chips'])),
         fieldRow(boolField('show_fan'), selectField('fan_style', ['full', 'chips'])),
+        boolField('fine_adjust'),
         colourFields(),
         actionFields(),
       ],
@@ -551,6 +555,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
           .tone=${tone}
           ?disabled=${idle}
           ?inactive=${m.off}
+          ?fine-adjust=${this.config?.fine_adjust === true}
           .unit=${m.unit}
           .label=${ariaLabel}
           .format=${figure}

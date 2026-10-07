@@ -409,6 +409,7 @@
     "sub": "Contexto",
     "days": "Días por delante",
     "live_update": "Actualizar al arrastrar",
+    "fine_adjust": "Ajuste fino al mantener pulsado",
     "show_count": "Mostrar cuántos están encendidos",
     "color": "Color",
     "color_help": "Un color de la paleta, o escribe cualquier #rrggbb",

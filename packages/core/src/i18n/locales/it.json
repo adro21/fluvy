@@ -409,6 +409,7 @@
     "sub": "Contesto",
     "days": "Giorni a venire",
     "live_update": "Aggiorna durante il trascinamento",
+    "fine_adjust": "Regolazione fine tenendo premuto",
     "show_count": "Mostra quanti sono accesi",
     "color": "Colore",
     "color_help": "Un colore della palette, oppure scrivi un #rrggbb",

@@ -128,6 +128,7 @@ export function numberBlocks(
       .max=${max}
       .step=${m.step}
       .length=${host.contentWidth}
+      ?fine-adjust=${host.fineAdjust}
       tone="accent"
       .unit=${view.unit}
       .label=${`${name} · ${s(host.hass, 'value')}`}

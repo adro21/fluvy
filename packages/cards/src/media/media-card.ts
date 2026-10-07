@@ -96,6 +96,8 @@ export interface MediaCardConfig extends FluvyCardConfig {
    * that can be switched on or off; it reads "Turn on" on a player that is off, in place of a dead transport.
    */
   show_power?: boolean;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
   /**
    * The mini row's rounds in order — `power`, `previous`, `play`, `next`, `volume` — each when the player can
    * take it; as many as the row holds beside the title, the last ones giving way. Default `[play, next]`.
@@ -294,6 +296,7 @@ export class FluvyMediaCard extends Card<MediaCardConfig> {
     'show_volume',
     'show_power',
     'controls',
+    'fine_adjust',
   ]);
   static override getConfigForm(): LovelaceConfigForm {
     return {
@@ -302,7 +305,7 @@ export class FluvyMediaCard extends Card<MediaCardConfig> {
         nameIconFields(),
         fieldRow(selectField('variant', VARIANTS), selectField('source_style', ['full', 'chips'])),
         fieldRow(boolField('show_source'), boolField('show_volume')),
-        boolField('show_power'),
+        fieldRow(boolField('show_power'), boolField('fine_adjust')),
         controlsField(),
         colourFields(),
         actionFields(),
@@ -675,6 +678,7 @@ export class FluvyMediaCard extends Card<MediaCardConfig> {
                 .step=${1}
                 .length=${length}
                 .tone=${muted ? 'neutral' : 'accent'}
+                ?fine-adjust=${this.config?.fine_adjust === true}
                 unit="%"
                 .label=${`${name} · ${this.t('media.volume')}`}
                 .format=${(v: number) => formatNumber(this.hass, v, { digits: 0 })}

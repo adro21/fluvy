@@ -78,6 +78,8 @@ export interface LightsCardConfig extends FluvyCardConfig {
   show_level?: boolean;
   /** One brightness ruler for the room, under the head (chips and tiles). */
   show_brightness?: boolean;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
   /** A light that is on wears its bulb's own colour when it has one (default); off: the palette's light. */
   light_colors?: boolean;
 }
@@ -174,6 +176,7 @@ export class FluvyLightsCard extends FluvyTileCard {
     'show_level',
     'show_brightness',
     'light_colors',
+    'fine_adjust',
   ]);
   static override lists: readonly RowsListSpec[] = [
     {
@@ -202,7 +205,7 @@ export class FluvyLightsCard extends FluvyTileCard {
         nameIconFields(),
         fieldRow(selectField('variant', LIGHTS_VARIANTS), boolField('show_brightness')),
         fieldRow(boolField('show_count'), boolField('show_level')),
-        boolField('light_colors'),
+        fieldRow(boolField('light_colors'), boolField('fine_adjust')),
         colourFields(),
         actionFields(),
       ],
@@ -618,6 +621,7 @@ export class FluvyLightsCard extends FluvyTileCard {
         ?disabled=${dead}
         ?inactive=${!any}
         ?wake=${!dead}
+        ?fine-adjust=${this.config?.fine_adjust === true}
         unit="%"
         .label=${`${name} · ${this.t('light.brightness')}`}
         .format=${(v: number) => formatNumber(this.hass, v, { digits: 0 })}

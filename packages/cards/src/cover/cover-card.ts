@@ -82,6 +82,8 @@ export interface CoverCardConfig extends FluvyCardConfig {
   favorites_style?: RowStyle;
   show_tilt?: boolean;
   show_favorites?: boolean;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
   /** The slats' angle at 100 % tilt. When set, tilt reads and steps in degrees (15°) instead of percent. */
   tilt_angle?: number;
 }
@@ -190,6 +192,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     'show_tilt',
     'show_favorites',
     'tilt_angle',
+    'fine_adjust',
   ]);
   static override lists: readonly RowsListSpec[] = [
     {
@@ -215,6 +218,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
           selectField('favorites_style', ['full', 'chips']),
         ),
         fieldRow(boolField('show_tilt'), boolField('show_favorites')),
+        boolField('fine_adjust'),
         { name: 'favorites', selector: { object: {} } },
         colourFields(),
         actionFields(),
@@ -524,6 +528,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
                   .tone=${open || moving ? active : 'neutral'}
                   ?inactive=${unusable || position === null}
                   ?disabled=${unusable}
+                  ?fine-adjust=${this.config?.fine_adjust === true}
                   unit="%"
                   .label=${`${name} · ${this.t('cover.position')}`}
                   .format=${(value: number) => formatNumber(this.hass, value, { digits: 0 })}

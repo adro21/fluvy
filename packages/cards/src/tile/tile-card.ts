@@ -38,6 +38,7 @@ import { FontsSettled } from '../shared/fonts.js';
 
 import {
   actionFields,
+  boolField,
   colourFields,
   entitiesField,
   entityField,
@@ -69,6 +70,8 @@ export interface TileItem {
 export interface TileCardConfig extends FluvyCardConfig, Omit<TileItem, 'entity'> {
   /** `large` (default): icon + switch, name, state and a foot. `compact`: one 76 px row. `mini`: icon over name, 108 px. */
   size?: TileSize;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
 }
 
 const LIGHT_BRIGHTNESS_MODES = new Set([
@@ -163,7 +166,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     `,
   ];
 
-  static override keys = configKeys<TileCardConfig>()(['size', 'readouts']);
+  static override keys = configKeys<TileCardConfig>()(['size', 'readouts', 'fine_adjust']);
   static override defaults: EditorDefaults = () => ({ size: 'large' });
   static override getConfigForm(): LovelaceConfigForm {
     return {
@@ -173,6 +176,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         selectField('size', TILE_SIZES),
         colourFields(),
         entitiesField('readouts', ['sensor']),
+        boolField('fine_adjust'),
         actionFields(),
       ],
       ...formLabels({ readouts: 'editor.readouts' }),
@@ -488,6 +492,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         .tone=${on ? tone : 'neutral'}
         ?inactive=${!on}
         wake
+        ?fine-adjust=${this.config?.fine_adjust === true}
         unit="%"
         .label=${`${name} · ${level.label}`}
         .format=${(v: number) => formatNumber(this.hass, v, { digits: 0 })}

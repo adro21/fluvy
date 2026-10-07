@@ -65,7 +65,7 @@ const CATALOGUE: ReadonlyArray<
     'fluvy-light-card',
     FluvyLightCard,
     'Fluvy · Light',
-    'The precision dimmer: relative drag, slide away to slow down, hold for the 1 % scale, colour temperature.',
+    'The precision dimmer: relative drag, slide away to slow down, colour temperature, and the 1 % scale on hold where `fine_adjust` is on.',
   ],
   [
     'fluvy-lights-card',

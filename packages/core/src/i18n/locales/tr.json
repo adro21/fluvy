@@ -409,6 +409,7 @@
     "sub": "Bağlam",
     "days": "İleriye dönük gün",
     "live_update": "Sürüklerken güncelle",
+    "fine_adjust": "Basılı tutunca ince ayar",
     "show_count": "Kaç tanesinin açık olduğunu göster",
     "color": "Renk",
     "color_help": "Paletten bir renk ya da herhangi bir #rrggbb",

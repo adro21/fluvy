@@ -409,6 +409,7 @@
     "sub": "Context",
     "days": "Days ahead",
     "live_update": "Update while dragging",
+    "fine_adjust": "Fine adjustment on hold",
     "show_count": "Show how many are on",
     "color": "Colour",
     "color_help": "A colour of the palette, or type any #rrggbb",

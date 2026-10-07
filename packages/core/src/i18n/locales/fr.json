@@ -409,6 +409,7 @@
     "sub": "Contexte",
     "days": "Jours à venir",
     "live_update": "Mettre à jour pendant le glissement",
+    "fine_adjust": "Réglage fin en maintenant appuyé",
     "show_count": "Afficher combien sont allumés",
     "color": "Couleur",
     "color_help": "Une couleur de la palette, ou saisissez un #rrggbb",

@@ -23,6 +23,8 @@ export interface HelperHost {
   readonly hass: HomeAssistant | undefined;
   /** Width of the card's content column: rulers are drawn to it. */
   readonly contentWidth: number;
+  /** The card's `fine_adjust`: a still press on a number's ruler zooms it to a tenth of its range. */
+  readonly fineAdjust: boolean;
   /** Widths laid out by the browser in the card's own classes: a filled chip row measures its columns with it. */
   readonly ruler: TextRuler;
   /** A row's own second line when it is a template: rendered by Home Assistant, live. */

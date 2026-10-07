@@ -46,7 +46,7 @@ one (as here), as pills, as icons, Home Assistant's own, or none at all.
 
 Every card has an editor form and a live preview in the card picker; every option is documented in
 [the cards](docs/cards.md). Sliders and dials are precision controls: relative drag, slide away to slow down,
-hold for the 1 % scale.
+and — on a card with `fine_adjust: true` — hold for the 1 % scale.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/acosta290/fluvy/main/docs/media/dimmer.gif" width="45%" alt="The precision dimmer: a relative drag, finer away from the ruler, and the 1 % scale on hold">

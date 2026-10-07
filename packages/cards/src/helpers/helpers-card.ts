@@ -20,6 +20,7 @@ import { Card, type BaseKey } from '../shared/base.js';
 
 import {
   actionFields,
+  boolField,
   colourFields,
   entitiesField,
   entityField,
@@ -61,6 +62,8 @@ export interface HelpersCardConfig extends FluvyCardConfig {
   rows?: ReadonlyArray<string | HelperRowConfig>;
   /** A select's options: chips that fill the row (`full`, the default) or content-sized ones (`chips`). */
   options_style?: RowStyle;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
 }
 
 const NUMBERS = new Set(['input_number', 'number', 'counter']);
@@ -181,6 +184,7 @@ export class FluvyHelpersCard extends Card<HelpersCardConfig> {
     return {
       hass: this.hass,
       contentWidth: this.contentWidth,
+      fineAdjust: this.config?.fine_adjust === true,
       ruler: this.ruler,
       texts: this.texts,
       state: (view) => this.stateOf(view),
@@ -214,6 +218,7 @@ export class FluvyHelpersCard extends Card<HelpersCardConfig> {
     'subtitle',
     'rows',
     'options_style',
+    'fine_adjust',
   ]);
   static override lists: readonly RowsListSpec[] = [
     {
@@ -240,6 +245,7 @@ export class FluvyHelpersCard extends Card<HelpersCardConfig> {
         fieldRow(iconField(), selectField('options_style', ['full', 'chips'])),
         colourFields(),
         entitiesField('entities', undefined, true),
+        boolField('fine_adjust'),
         actionFields(),
       ],
       ...formLabels({ options_style: 'editor.options_style' }),

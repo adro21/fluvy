@@ -28,8 +28,9 @@ const HOLD_MS = 450;
  * jumps), drifting the finger away from the axis slows the drag down to 10×, ticks rise around the
  * knob while it moves, a bubble carries the value, and the keyboard covers step / 10 % / ends.
  *
- * Holding still for 450 ms raises the FINE scale: the ruler zooms to a tenth of its range around the
- * value (1 % ticks on a 0–100 scale), so 97 is as easy to hit as 50. Releasing returns to the full scale.
+ * With `fine-adjust` on, holding still for 450 ms raises the FINE scale: the ruler zooms to a tenth of its
+ * range around the value (1 % ticks on a 0–100 scale), so 97 is as easy to hit as 50. Releasing returns to
+ * the full scale. Off by default: a thumb that rests on a tile's ruler must not change the scale under it.
  *
  * Events: `fluvy-input` while dragging (preview), `fluvy-change` on release, key or tap,
  * `fluvy-window` when the fine scale comes up or goes away (so a card can relabel its axis).
@@ -74,6 +75,7 @@ export class FluvyRuler extends LitElement {
     inactive: { type: Boolean },
     wake: { type: Boolean },
     disabled: { type: Boolean },
+    fineAdjust: { type: Boolean, attribute: 'fine-adjust' },
     unit: { type: String },
     label: { type: String },
     format: { attribute: false },
@@ -106,6 +108,8 @@ export class FluvyRuler extends LitElement {
   /** An inactive ruler that still answers: dragging or tapping it wakes the device at that value. */
   declare wake: boolean;
   declare disabled: boolean;
+  /** A still press of 450 ms zooms the scale to a tenth of its range (the fine scale). Off by default. */
+  declare fineAdjust: boolean;
   declare unit: string;
   declare label: string;
   declare format: ((value: number) => string) | undefined;
@@ -147,6 +151,7 @@ export class FluvyRuler extends LitElement {
     this.inactive = false;
     this.wake = false;
     this.disabled = false;
+    this.fineAdjust = false;
     this.unit = '';
     this.label = '';
     this.dragging = false;
@@ -238,10 +243,10 @@ export class FluvyRuler extends LitElement {
         this.cursor = this.shown;
         this.lastAlong = 0;
         this.follow?.stop();
-        // The fine scale is a deliberate press-and-hold BEFORE moving. It never arms mid-drag:
-        // a pause while sliding must not change the scale under the finger.
+        // The fine scale is a deliberate press-and-hold BEFORE moving, and only where the card asked for it.
+        // It never arms mid-drag: a pause while sliding must not change the scale under the finger.
         clearTimeout(this.holdTimer);
-        this.holdTimer = window.setTimeout(() => this.raiseFine(), HOLD_MS);
+        if (this.fineAdjust) this.holdTimer = window.setTimeout(() => this.raiseFine(), HOLD_MS);
         return true;
       },
       move: (s) => {

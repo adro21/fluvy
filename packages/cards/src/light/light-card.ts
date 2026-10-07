@@ -49,6 +49,8 @@ export interface LightCardConfig extends FluvyCardConfig {
   show_temperature?: boolean;
   /** The colour-temperature ruler's ticks take a faint warm → cool tint (default). Off = neutral ticks like the brightness ruler. */
   temperature_tint?: boolean;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
 }
 
 const DIMMABLE = new Set(['brightness', 'color_temp', 'hs', 'xy', 'rgb', 'rgbw', 'rgbww', 'white']);
@@ -118,6 +120,7 @@ export class FluvyLightCard extends Card<LightCardConfig> {
     'live_update',
     'show_temperature',
     'temperature_tint',
+    'fine_adjust',
   ]);
   static override getConfigForm(): LovelaceConfigForm {
     return {
@@ -129,7 +132,7 @@ export class FluvyLightCard extends Card<LightCardConfig> {
           boolField('show_temperature'),
         ),
         boolField('temperature_tint'),
-        boolField('live_update'),
+        fieldRow(boolField('live_update'), boolField('fine_adjust')),
         colourFields(),
         actionFields(),
       ],
@@ -324,6 +327,7 @@ export class FluvyLightCard extends Card<LightCardConfig> {
                 ?disabled=${unusable}
                 ?inactive=${!on}
                 ?wake=${!unusable}
+                ?fine-adjust=${this.config?.fine_adjust === true}
                 unit="%"
                 .label=${`${name} · ${this.t('light.brightness')}`}
                 .format=${(v: number) => formatNumber(this.hass, v, { digits: 0 })}
@@ -352,6 +356,7 @@ export class FluvyLightCard extends Card<LightCardConfig> {
                 .minor=${0.1}
                 .major=${0.5}
                 ?inactive=${!on}
+                ?fine-adjust=${this.config?.fine_adjust === true}
                 .tint=${this.config?.temperature_tint === false ? '' : 'warm-cool'}
                 unit="K"
                 .label=${`${name} · ${this.t('light.temperature')}`}

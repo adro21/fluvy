@@ -10,6 +10,7 @@ import {
 
 import {
   actionFields,
+  boolField,
   colourFields,
   entitiesField,
   entityField,
@@ -80,7 +81,13 @@ export class FluvyTilesCard extends FluvyTileCard {
 
   /** The group has no entity of its own: its tone and colour are its tiles' default. */
   static override base: readonly BaseKey[] = ['entities', 'tone', 'color'];
-  static override keys = configKeys<TilesCardConfig>()(['size', 'readouts', 'tiles', 'columns']);
+  static override keys = configKeys<TilesCardConfig>()([
+    'size',
+    'readouts',
+    'tiles',
+    'columns',
+    'fine_adjust',
+  ]);
   static override lists: readonly RowsListSpec[] = [
     {
       key: 'tiles',
@@ -105,6 +112,7 @@ export class FluvyTilesCard extends FluvyTileCard {
         fieldRow(selectField('size', SIZES), selectField('columns', COLUMNS)),
         colourFields(),
         entitiesField('readouts', ['sensor']),
+        boolField('fine_adjust'),
       ],
       ...formLabels({ readouts: 'editor.readouts' }),
     };

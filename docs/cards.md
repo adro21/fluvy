@@ -19,6 +19,11 @@ and `none`. The icon circle answers the tap and a still press on the head the ho
 surface. An action with a `confirmation` is asked about first, by Home Assistant's own dialog, and nothing on the
 card moves before the answer.
 
+A card whose ruler a finger can move — the tile, tiles, room, room lights, light, thermostat, fan, cover, media and
+helpers cards — takes `fine_adjust` (off by default): with it on, holding the knob still for 450 ms zooms the scale
+to a tenth of its range (1 % ticks on a 0–100 scale) for an exact value, and releasing brings the full scale back.
+Off, a still press does nothing, and tap to set, the relative drag and the keyboard are the same either way.
+
 ## Customisation
 
 Every card exposes what to show (section switches such as `show_fan`), which items appear and in which order (subset
@@ -47,16 +52,16 @@ rows:
 
 | Card | Type | What it is | Options | Reads |
 | --- | --- | --- | --- | --- |
-| **Tile** | `custom:fluvy-tile-card` | A light, switch, cover, fan or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini. | `size` (`large`, `compact`, `mini`), `readouts` | — |
-| **Tiles** | `custom:fluvy-tiles-card` | A group of compact or mini tiles, two to four per row, 8 px apart. | `size` (`compact`, `mini`, `large`), `columns` (`1`, `2`, `3`, `4`, `auto`), `readouts`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `tap_action`, `hold_action`) | `entities` → `tiles` |
-| **Light** | `custom:fluvy-light-card` | The precision dimmer: relative drag, slide away to slow down, hold for the 1 % scale, colour temperature. | `variant` (`auto`, `full`, `compact`), `show_temperature`, `temperature_tint`, `live_update` | — |
-| **Room lights** | `custom:fluvy-lights-card` | A room’s lights on one card: one tap for the whole room, a round, chip or tile for each light, in its colour. | `area`, `variant` (`row`, `chips`, `tiles`), `show_brightness`, `show_count`, `show_level`, `light_colors`, `lights` (a list: `entity`, `name`, `icon`, `color`) | `entities` → `lights` |
-| **Thermostat** | `custom:fluvy-thermostat-card` | Climate, water heater or humidifier on a dial, with modes, presets and fan speeds. | `variant` (`dial`, `compact`, `ruler`), `modes_style` (`tiles`, `chips`, `full`), `modes` (`off`, `heat`, `cool`, `heat_cool`, `auto`, `dry`, `fan_only`), `show_presets`, `preset_style` (`full`, `chips`), `show_fan`, `fan_style` (`full`, `chips`) | — |
+| **Tile** | `custom:fluvy-tile-card` | A light, switch, cover, fan or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini. | `size` (`large`, `compact`, `mini`), `readouts`, `fine_adjust` | — |
+| **Tiles** | `custom:fluvy-tiles-card` | A group of compact or mini tiles, two to four per row, 8 px apart. | `size` (`compact`, `mini`, `large`), `columns` (`1`, `2`, `3`, `4`, `auto`), `readouts`, `fine_adjust`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `tap_action`, `hold_action`) | `entities` → `tiles` |
+| **Light** | `custom:fluvy-light-card` | The precision dimmer: relative drag, slide away to slow down, colour temperature, and the 1 % scale on hold where `fine_adjust` is on. | `variant` (`auto`, `full`, `compact`), `show_temperature`, `temperature_tint`, `live_update`, `fine_adjust` | — |
+| **Room lights** | `custom:fluvy-lights-card` | A room’s lights on one card: one tap for the whole room, a round, chip or tile for each light, in its colour. | `area`, `variant` (`row`, `chips`, `tiles`), `show_brightness`, `show_count`, `show_level`, `light_colors`, `fine_adjust`, `lights` (a list: `entity`, `name`, `icon`, `color`) | `entities` → `lights` |
+| **Thermostat** | `custom:fluvy-thermostat-card` | Climate, water heater or humidifier on a dial, with modes, presets and fan speeds. | `variant` (`dial`, `compact`, `ruler`), `modes_style` (`tiles`, `chips`, `full`), `modes` (`off`, `heat`, `cool`, `heat_cool`, `auto`, `dry`, `fan_only`), `show_presets`, `preset_style` (`full`, `chips`), `show_fan`, `fan_style` (`full`, `chips`), `fine_adjust` | — |
 | **Entities** | `custom:fluvy-entities-card` | Rows of entities: a switch for what toggles, the value for what is measured. | `title`, `subtitle`, `variant` (`rows`, `compact`), `show_count`, `rows` (a list: `entity`, `name`, `icon`, `secondary`, `tone`, `color`, `tap_action`) | `entities` → `rows` |
-| **Media** | `custom:fluvy-media-card` | A media player: artwork, seek bar, transport and volume — full, compact row or hero. | `variant` (`full`, `mini`, `hero`), `source_style` (`full`, `chips`), `show_source`, `show_volume`, `show_power`, `controls` (`power`, `previous`, `play`, `next`, `volume`) | — |
+| **Media** | `custom:fluvy-media-card` | A media player: artwork, seek bar, transport and volume — full, compact row or hero. | `variant` (`full`, `mini`, `hero`), `source_style` (`full`, `chips`), `show_source`, `show_volume`, `show_power`, `fine_adjust`, `controls` (`power`, `previous`, `play`, `next`, `volume`) | — |
 | **Now playing** | `custom:fluvy-now-playing-card` | The compact player of the home screen: artwork, thin progress, transport and volume. | `show_volume`, `show_power`, `controls` (`power`, `previous`, `play`, `next`, `volume`) | — |
-| **Cover** | `custom:fluvy-cover-card` | Blinds, shutters, garage doors and valves: vertical position ruler, tilt, open · stop · close, favourites. | `subtitle`, `tilt_angle`, `variant` (`full`, `compact`), `favorites_style` (`full`, `chips`), `show_tilt`, `show_favorites`, `favorites`, `favorites` (a list: `name`, `position`, `tilt`) | — |
-| **Fan** | `custom:fluvy-fan-card` | Speed ruler with steps, oscillation, direction and presets. | `subtitle`, `variant` (`full`, `compact`), `show_presets`, `preset_style` (`full`, `chips`), `show_oscillation`, `show_direction` | — |
+| **Cover** | `custom:fluvy-cover-card` | Blinds, shutters, garage doors and valves: vertical position ruler, tilt, open · stop · close, favourites. | `subtitle`, `tilt_angle`, `variant` (`full`, `compact`), `favorites_style` (`full`, `chips`), `show_tilt`, `show_favorites`, `fine_adjust`, `favorites`, `favorites` (a list: `name`, `position`, `tilt`) | — |
+| **Fan** | `custom:fluvy-fan-card` | Speed ruler with steps, oscillation, direction and presets. | `subtitle`, `variant` (`full`, `compact`), `show_presets`, `preset_style` (`full`, `chips`), `show_oscillation`, `show_direction`, `fine_adjust` | — |
 | **Vacuum** | `custom:fluvy-vacuum-card` | Robot vacuum or mower: battery, start · stop · dock · locate, suction. | `subtitle`, `variant` (`full`, `compact`), `show_battery`, `battery_entity`, `area_entity`, `duration_entity`, `remaining_entity`, `suction_style` (`full`, `chips`) | — |
 | **Lock** | `custom:fluvy-lock-card` | Slide to unlock, never one accidental tap; codes, jammed state, related rows. | `subtitle`, `variant` (`full`, `compact`), `show_rows`, `rows`, `rows` (a list: `entity`, `name`, `icon`, `secondary`, `tone`, `color`, `tap_action`) | — |
 | **Alarm** | `custom:fluvy-alarm-card` | Arm modes as tiles and the keypad sheet for codes. | `subtitle`, `variant` (`tiles`, `compact`), `modes` (`disarm`, `arm_home`, `arm_away`, `arm_night`, `arm_vacation`, `arm_custom_bypass`), `show_rows`, `rows`, `rows` (a list: `entity`, `name`, `icon`, `secondary`, `tone`, `color`, `tap_action`) | — |
@@ -71,7 +76,7 @@ rows:
 
 | Card | Type | What it is | Options | Reads |
 | --- | --- | --- | --- | --- |
-| **Room** | `custom:fluvy-room-card` | A room of the house from its area: its picture, its climate, what is on, and its controls. | `area`, `variant` (`photo`, `tile`, `row`), `controls` (`rows`, `tiles`, `none`), `show_climate`, `show_count`, `picture`, `path`, `temperature_entity`, `humidity_entity`, `size` (`large`, `compact`, `mini`), `readouts`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `tap_action`, `hold_action`) | — |
+| **Room** | `custom:fluvy-room-card` | A room of the house from its area: its picture, its climate, what is on, and its controls. | `area`, `variant` (`photo`, `tile`, `row`), `controls` (`rows`, `tiles`, `none`), `show_climate`, `show_count`, `picture`, `path`, `temperature_entity`, `humidity_entity`, `size` (`large`, `compact`, `mini`), `readouts`, `fine_adjust`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `tap_action`, `hold_action`) | — |
 | **Map** | `custom:fluvy-map-card` | Where everyone is: the house’s zones as columns of faces, a row a person, or Home Assistant’s map on a plate. | `zones`, `title`, `variant` (`zones`, `map`, `rows`), `map_shape` (`wide`, `square`), `hours_to_show`, `default_zoom`, `fit_zones`, `show_empty`, `show_distance`, `map_path`, `zones` (a list: `entity`, `name`, `icon`) | — |
 
 ## Structure and navigation
@@ -89,7 +94,7 @@ rows:
 | **Scene** | `custom:fluvy-scene-card` | One scene, script or button as a tile with a done state. | `subtitle`, `show_subtitle` | `meta` → `subtitle` |
 | **Scenes** | `custom:fluvy-scenes-card` | A grid of scenes and scripts. | `title`, `columns` (`auto`, `1`, `2`), `scenes` (a list: `entity`, `name`, `icon`, `subtitle`, `tap_action`) | `entities` → `scenes` |
 | **Actions** | `custom:fluvy-actions-card` | Buttons and scripts as a list with run buttons. | `title`, `subtitle`, `columns`, `rows` (a list: `entity`, `name`, `icon`, `secondary`) | `entities` → `rows` |
-| **Helpers** | `custom:fluvy-helpers-card` | Numbers, selects, texts, booleans and dates as their own controls. | `title`, `subtitle`, `options_style` (`full`, `chips`), `rows` (a list: `entity`, `name`, `icon`, `secondary`, `presets`) | `entities` → `rows` |
+| **Helpers** | `custom:fluvy-helpers-card` | Numbers, selects, texts, booleans and dates as their own controls. | `title`, `subtitle`, `options_style` (`full`, `chips`), `fine_adjust`, `rows` (a list: `entity`, `name`, `icon`, `secondary`, `presets`) | `entities` → `rows` |
 | **To-do** | `custom:fluvy-todo-card` | A to-do list: check, add, hide the done. | `subtitle`, `show_completed`, `show_add`, `show_due` | `title` → `name`, `hide_completed` → `show_completed` |
 | **Timer** | `custom:fluvy-timer-card` | A timer counting down live, with pause and cancel. | `show_gauge`, `show_actions` | — |
 | **Updates** | `custom:fluvy-updates-card` | Pending updates with install buttons and progress. | `title`, `subtitle`, `show_up_to_date`, `toggle`, `toggle_secondary` | — |

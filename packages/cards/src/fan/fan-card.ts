@@ -69,6 +69,8 @@ export interface FanCardConfig extends FluvyCardConfig {
   preset_style?: RowStyle;
   show_oscillation?: boolean;
   show_direction?: boolean;
+  /** A still press of 450 ms zooms the ruler to a tenth of its range, for an exact value. Off by default. */
+  fine_adjust?: boolean;
 }
 
 /* fan supported_features */
@@ -184,6 +186,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
     'preset_style',
     'show_oscillation',
     'show_direction',
+    'fine_adjust',
   ]);
   static override getConfigForm(): LovelaceConfigForm {
     return {
@@ -193,6 +196,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
         fieldRow(textField('subtitle'), selectField('variant', ['full', 'compact'])),
         fieldRow(boolField('show_presets'), selectField('preset_style', ['full', 'chips'])),
         fieldRow(boolField('show_oscillation'), boolField('show_direction')),
+        boolField('fine_adjust'),
         colourFields(),
         actionFields(),
       ],
@@ -501,6 +505,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
                   ?inactive=${speed === null || !on}
                   ?wake=${!unusable && speed !== null}
                   ?disabled=${unusable}
+                  ?fine-adjust=${this.config?.fine_adjust === true}
                   unit="%"
                   .label=${`${name} · ${speedLabel}`}
                   .format=${(value: number) => formatNumber(this.hass, value, { digits: 0 })}

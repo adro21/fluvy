@@ -409,6 +409,7 @@
     "sub": "Kontext",
     "days": "Tage im Voraus",
     "live_update": "Beim Ziehen aktualisieren",
+    "fine_adjust": "Feineinstellung bei Halten",
     "show_count": "Anzahl der eingeschalteten zeigen",
     "color": "Farbe",
     "color_help": "Eine Farbe der Palette, oder ein beliebiges #rrggbb",

@@ -5,6 +5,13 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Fine adjustment is off by default** — a still press on a ruler no longer zooms it to a tenth of its range,
+  which a thumb resting on a shade or a light tile kept doing by accident. The cards whose ruler a finger moves
+  (tile, tiles, room, room lights, light, thermostat, fan, cover, media and helpers) take `fine_adjust: true`, in
+  the editor too, to have the 450 ms hold back; tap to set, the relative drag and the keyboard are as they were.
+
 ## [1.5.0] — 2026-10-03
 
 ### Added

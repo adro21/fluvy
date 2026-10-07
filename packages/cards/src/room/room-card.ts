@@ -125,6 +125,7 @@ export class FluvyRoomCard extends FluvyTileCard {
     'humidity_entity',
     'size',
     'readouts',
+    'fine_adjust',
   ]);
   static override lists: readonly RowsListSpec[] = [
     {
@@ -160,6 +161,7 @@ export class FluvyRoomCard extends FluvyTileCard {
           name: 'readouts',
           selector: { entity: { multiple: true } },
         }),
+        boolField('fine_adjust'),
         colourFields(),
         fieldRow(actionField('tap_action'), actionField('hold_action')),
       ],
