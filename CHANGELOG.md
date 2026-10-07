@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.3] — 2026-10-07
+
 ### Fixed
 
 - **Delete reads again** in Home Assistant's menus in dark mode: the theme gave Home Assistant's "quiet" danger,
