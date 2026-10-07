@@ -124,7 +124,8 @@ async function download(version) {
 }
 
 async function restart() {
-  await rest('POST', '/api/services/homeassistant/restart', {});
+  // Home Assistant may drop the connection as it goes down before answering: that is the restart starting
+  await rest('POST', '/api/services/homeassistant/restart', {}).catch(() => undefined);
   console.log('restarting…');
   const started = Date.now();
   await new Promise((r) => setTimeout(r, 10_000));
