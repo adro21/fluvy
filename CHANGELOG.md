@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.4] — 2026-10-08
+
 ### Changed
 
 - **A wall fills its screen**: on a wall panel, a dashboard's columns grow to the tablet's width instead of stopping
