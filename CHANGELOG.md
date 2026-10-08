@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.6] — 2026-10-08
+
 ### Added
 
 - **A bigger clock**: `size: large` or `huge` on a digital hero clock draws its digits half as big again or twice
