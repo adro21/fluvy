@@ -23,7 +23,11 @@ export const sheet: SheetSpec = {
     ],
   ],
   frames: [
-    { title: 'On', cards: [{ type: 'custom:fluvy-light-card', entity: 'light.ceiling' }] },
+    // fine_adjust: the precision ruler's interaction suite holds this card's ruler for the fine scale
+    {
+      title: 'On',
+      cards: [{ type: 'custom:fluvy-light-card', entity: 'light.ceiling', fine_adjust: true }],
+    },
     { title: 'Off', cards: [{ type: 'custom:fluvy-light-card', entity: 'light.reading' }] },
     { title: 'Unavailable', cards: [{ type: 'custom:fluvy-light-card', entity: 'light.porch' }] },
     {

@@ -28,6 +28,11 @@ and explain in plain language.
 - A card option is: a field in the card's config interface → its name in `static keys` (the type refuses a key the
   interface lacks and vice versa) → a field in `getConfigForm()` → a word under `"editor"` in all 8 catalogues
   (`editor.<key>` is picked up automatically). `packages/cards/src/shared/editors.test.ts` enforces all of it.
+- `pnpm check` does **not** run the browser suites (`tools/render/interactions*.mjs`); CI's *Measurer and
+  interactions* job does, and a failure there emails the owner. After changing a control's behaviour (a ruler, a
+  stepper, a card's taps), run them locally: `FLUVY_NO_HMR=1 pnpm --filter @fluvy/playground dev` in the background,
+  then `node tools/render/visual.mjs` (or `… visual.mjs base foundations` for a subset). 1.5.1 made fine adjust
+  opt-in without updating them, and CI failed on every push until 2026-10-08.
 - Known flake: `packages/cards/src/panel/panel.test.ts` ("shows the screensaver…") waits a fixed 80 ms for a lazy
   import and can fail when every package tests at once. Rerun `pnpm check`; it is not a real failure.
 

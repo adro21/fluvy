@@ -148,7 +148,15 @@ async function open(sheet, width = 360, options = {}) {
   // the fine grid sits on the step grid: 5–35 by 0.5 zooms to 0.5 ° ticks with labels the ruler can settle on
   const fine = await page.evaluate(async () => {
     const el = document.createElement('fluvy-ruler');
-    Object.assign(el, { value: 21, min: 5, max: 35, step: 0.5, length: 320, label: 'Probe' });
+    Object.assign(el, {
+      value: 21,
+      min: 5,
+      max: 35,
+      step: 0.5,
+      length: 320,
+      label: 'Probe',
+      fineAdjust: true, // off by default since 1.5.1: a still press zooms only when asked
+    });
     el.style.cssText = 'display:block;width:320px';
     document.getElementById('stage').append(el);
     await el.updateComplete;
