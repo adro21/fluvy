@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **A bare clock**: `frame: false` on the clock card drops the card around a hero or side clock — no plate, no
+  border, no padding — so the time can sit on the page itself, next to the greeting. The editor shows it as
+  *Show the card frame*; a tile keeps its shape.
+
 ## [1.5.4] — 2026-10-08
 
 ### Changed

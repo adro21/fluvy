@@ -69,6 +69,8 @@ export interface ClockCardConfig extends FluvyCardConfig {
   /** A label for this clock: a second city, a room. */
   title?: string;
   show_date?: boolean;
+  /** `false`: the hero or side clock without its card — no plate, no border, no padding — on the page itself. */
+  frame?: boolean;
   /** Test hook (undocumented): an ISO instant that freezes the clock, so a render can be held against the sheet. */
   _now?: string;
 }
@@ -99,9 +101,11 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
   static override layoutHeight(config: ClockCardConfig): number {
     const weather = Boolean(config.weather);
     if (config.variant === 'tile') return 168;
-    if (config.variant === 'side') return weather ? 268 : 208;
-    if (config.face === 'digital') return weather && config.show_forecast !== false ? 196 : 136;
-    return weather ? 352 : 340;
+    const padding = config.frame === false ? 40 : 0; // bare: the card's 20 px above and below are gone
+    if (config.variant === 'side') return (weather ? 268 : 208) - padding;
+    if (config.face === 'digital')
+      return (weather && config.show_forecast !== false ? 196 : 136) - padding;
+    return (weather ? 352 : 340) - padding;
   }
 
   static override styles: CSSResultGroup = [
@@ -114,6 +118,10 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
       }
       .ck-card--tap {
         cursor: pointer;
+      }
+      /* bare: the digits sit on the page; a tap's focus ring still needs a shape */
+      .ck-card--bare {
+        border-radius: var(--fluvy-radius-card);
       }
       .ck-cols {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -182,6 +190,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     'time_zone',
     'title',
     'show_date',
+    'frame',
   ]);
   /**
    * The older names: `variant` said analog or digital (now `face`) and `layout` the look (now `variant`, read by
@@ -208,6 +217,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
       show_date: true,
       show_week: false,
       show_forecast: Boolean(config['weather']),
+      frame: true,
     };
   };
   static override getConfigForm(): LovelaceConfigForm {
@@ -231,6 +241,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
         boolField('show_week'),
         entityField(['weather'], 'weather', false),
         boolField('show_forecast'),
+        boolField('frame'),
         textField('time_zone'),
         accentField(),
         actionField(),
@@ -343,6 +354,11 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     return value === 'side' || value === 'tile' ? value : 'hero';
   }
 
+  /** `frame: false` on a hero or side clock: no card around it. A tile is its own shape and keeps it. */
+  private get bare(): boolean {
+    return this.config?.frame === false && this.look !== 'tile';
+  }
+
   /** The sheet's defaults: a second hand on the hero face only; digital seconds on request, never in a tile. */
   private get seconds(): boolean {
     if (this.analog) return this.config?.show_seconds ?? this.look === 'hero';
@@ -425,7 +441,12 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
       sky,
       forecast: sky?.ok && this.forecastEntity ? this.feed.forecast : { status: 'none' },
       sun: this.sun(format),
-      width: this.look === 'tile' ? Math.max(72, this.width - 32) : this.contentWidth,
+      width:
+        this.look === 'tile'
+          ? Math.max(72, this.width - 32)
+          : this.bare
+            ? this.width
+            : this.contentWidth,
       ruler: this.ruler,
     };
   }
@@ -447,7 +468,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     const surface =
       look === 'tile'
         ? `fv-tile ck-tile${m.analog ? ' ck-tile--analog' : ''}${tappable ? ' fv-tile--tap' : ''}`
-        : `fv-card ck-card${tappable ? ' ck-card--tap' : ''}`;
+        : `${this.bare ? 'ck-card ck-card--bare' : 'fv-card ck-card'}${tappable ? ' ck-card--tap' : ''}`;
     // A clock is a read-out: it is a button only when a tap does something, and then the keyboard reaches it too.
     return html`<article
       class=${surface}
