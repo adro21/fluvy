@@ -77,5 +77,27 @@ node tools/dev/ha.mjs add               # re-adds the integration if it was dele
 node tools/dev/ha.mjs status            # confirm "Loaded: X.Y.Z" and the resource URL carries X.Y.Z
 ```
 
-Then tell the owner to hard-refresh the browser (Cmd + Shift + R). The fork is registered in HACS as a custom
+Then tell the owner to hard-refresh the browser (Cmd + Shift + R).
+
+## The owner's dashboard (editable over the API too)
+
+The dashboard at `/fluvy-auto` is a **taken-over copy** of the automatic one: plain views and sections stored by
+Home Assistant (`strategy: None`), which the owner edits by hand. It is read and written over the WebSocket API:
+
+```sh
+node tools/dev/ha.mjs ws '{"type":"lovelace/config","url_path":"fluvy-auto"}' > before.json   # read it all
+# edit the JSON (one view at a time; leave the other views as they are), then
+node tools/dev/ha.mjs ws "$(python3 -c "import json; print(json.dumps({'type':'lovelace/config/save','url_path':'fluvy-auto','config':json.load(open('after.json'))}))")"
+```
+
+Always save a copy of the whole configuration in `~/.config/fluvy/` before writing (the Lights tab's previous and
+current layouts are there, `dashboard-fluvy-auto-backup-*.json` and `dashboard-fluvy-auto-lights-v1.json`). The
+Lights tab was rebuilt on 2026-10-07 as one card per room (`docs/plans/2026-10-07-lights-tab-layout-design.md`).
+A Chrome tab (the browser tools) is the way to look at the result; close it afterwards.
+
+## Verifying in the owner's browser
+
+The Chrome tools reach the owner's logged-in Home Assistant: open `http://homeassistant.local/…` in a new tab,
+inspect computed styles with the JavaScript tool (the theme's variables sit on the `home-assistant` element),
+take a screenshot, and close the tab. Cancel any editor opened there rather than saving it. The fork is registered in HACS as a custom
 repository of type *Integration* (`adro21/fluvy`); the original `acosta290/fluvy` was removed from HACS.
