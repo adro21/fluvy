@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.5] — 2026-10-08
+
 ### Added
 
 - **A bare clock**: `frame: false` on the clock card drops the card around a hero or side clock — no plate, no
