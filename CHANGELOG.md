@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.7] — 2026-10-08
+
 ### Changed
 
 - **A pause ends on the way back**: a wall paused from its corner is a wall again as soon as the page goes to
