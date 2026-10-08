@@ -134,7 +134,17 @@ export function createWall(deps: WallDeps): WallHandle {
     phase = next;
     deps.onPhase?.(next);
   };
-  const paused = (): boolean => session(win)?.getItem(PAUSED_KEY) === '1';
+  /** The pause is held in the session as the dashboard it was taken on: moving to another page ends it. */
+  const paused = (): boolean => session(win)?.getItem(PAUSED_KEY) !== null;
+  const unpauseIfLeft = (): void => {
+    const store = session(win);
+    const held = store?.getItem(PAUSED_KEY);
+    if (held === null || held === undefined) return;
+    const here = urlPathOf(win.location.pathname) ?? '';
+    if (held === here) return;
+    store?.removeItem(PAUSED_KEY);
+    win.clearTimeout(resumeTimer);
+  };
   const wall = () => deps.settings().wall;
 
   /** The darkening layer at night: a click-through veil at the house's share of black, only while awake and dark. */
@@ -278,6 +288,7 @@ export function createWall(deps: WallDeps): WallHandle {
   };
 
   const evaluate = (): void => {
+    unpauseIfLeft(); // a pause is for the dashboard it was taken on: back from elsewhere, the wall is a wall again
     const hass = deps.hass();
     const settings = deps.settings();
     const on = wallOn({
@@ -315,7 +326,7 @@ export function createWall(deps: WallDeps): WallHandle {
   };
 
   function pause(): void {
-    session(win)?.setItem(PAUSED_KEY, '1');
+    session(win)?.setItem(PAUSED_KEY, urlPathOf(win.location.pathname) ?? '');
     evaluate();
     armResume();
   }

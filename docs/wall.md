@@ -40,8 +40,8 @@ The house chooses the way out in the *Wall* tab (*Way out*), and nobody is ever 
 - **Long press**: nothing shows. Press and hold the top-right corner for a second and a half: a ring fills, the
   tablet taps back, and the wall pauses the same way: for a tablet that should not be left by a passing hand.
 
-Either way the device stays a wall. The pause lasts until *Resume*, or until the screensaver would have started
-(with the screensaver set to *Never*, until a reload); the next visit is a wall again. To make the tablet a device
+Either way the device stays a wall. The pause lasts until *Resume*, until the page goes to another dashboard or to
+the settings and comes back, or until the screensaver would have started; the next visit is a wall again. To make the tablet a device
 again for good, switch *Wall panel* off in the *Wall* tab, or open the address with `?kiosk=0` on it — a notice,
 *Wall mode off · Back to the wall*, then offers the way back for a few seconds.
 

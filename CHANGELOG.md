@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **A pause ends on the way back**: a wall paused from its corner is a wall again as soon as the page goes to
+  another dashboard or to the settings and returns, without a tap on *Resume*. Moving between the views of the
+  same dashboard keeps the pause.
+
 ## [1.5.6] — 2026-10-08
 
 ### Added

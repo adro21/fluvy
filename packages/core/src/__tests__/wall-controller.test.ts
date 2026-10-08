@@ -136,7 +136,7 @@ describe('the wall controller', () => {
     wall.pause();
     await vi.advanceTimersByTimeAsync(1);
     expect(wall.phase()).toBe('paused');
-    expect(sessionStorage.getItem(PAUSED_KEY)).toBe('1');
+    expect(sessionStorage.getItem(PAUSED_KEY)).toBe('fluvy-wall'); // the dashboard the pause is for
     expect(document.documentElement.hasAttribute(WALL_ATTRIBUTE)).toBe(false);
     expect(shown.toast).toBe(1);
     wall.resume();
@@ -161,7 +161,7 @@ describe('the wall controller', () => {
     expect(wall.phase()).toBe('paused');
     expect(document.documentElement.hasAttribute(WALL_ATTRIBUTE)).toBe(false);
     expect(device().wall).toBe(true); // a tap on the × is not the tablet's setting being undone
-    expect(sessionStorage.getItem(PAUSED_KEY)).toBe('1');
+    expect(sessionStorage.getItem(PAUSED_KEY)).toBe('fluvy-wall');
     expect(notice()?.kind).toBe('paused');
     expect(shown.toast).toBe(1);
 
@@ -175,6 +175,31 @@ describe('the wall controller', () => {
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 1);
     expect(wall.phase()).toBe('awake');
     expect(device().wall).toBe(true);
+    wall.stop();
+  });
+
+  it('ends a pause when the page goes elsewhere: back on the dashboard, the wall is a wall again', async () => {
+    const { wall, shown, corner } = setup();
+    await vi.advanceTimersByTimeAsync(1);
+    corner()!.onLeave();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(wall.phase()).toBe('paused');
+    // another view of the same dashboard keeps the pause
+    history.replaceState(null, '', '/fluvy-wall/lights');
+    window.dispatchEvent(new Event('location-changed'));
+    expect(wall.phase()).toBe('paused');
+    expect(sessionStorage.getItem(PAUSED_KEY)).toBe('fluvy-wall');
+    // Fluvy's panel is another page: the pause is over, and there is no wall there either
+    history.replaceState(null, '', '/fluvy/wall');
+    window.dispatchEvent(new Event('location-changed'));
+    expect(wall.phase()).toBe('off');
+    expect(sessionStorage.getItem(PAUSED_KEY)).toBeNull();
+    expect(shown.toast).toBe(0);
+    // back on the dashboard, a wall
+    history.replaceState(null, '', '/fluvy-wall/wall');
+    window.dispatchEvent(new Event('location-changed'));
+    expect(wall.phase()).toBe('awake');
+    expect(document.documentElement.hasAttribute(WALL_ATTRIBUTE)).toBe(true);
     wall.stop();
   });
 
