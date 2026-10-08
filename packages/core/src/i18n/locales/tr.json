@@ -1092,11 +1092,11 @@
     "wall.paused": "Duvar duraklatıldı",
     "wall.resume": "Sürdür",
     "wall.leave": "Duvardan çıkmak için basılı tutun",
-    "wall.leave_tap": "Duvardan çık",
+    "wall.leave_tap": "Duvarı duraklat",
     "wall.left": "Duvar modu kapalı",
     "wall.return": "Duvara dön",
     "wall.exit": "Çıkış",
-    "wall.exit_sub": "Üst köşede: çıkaran bir × veya duraklatan gizli bir basma",
+    "wall.exit_sub": "Üst köşede: dokunulacak bir × veya gizli bir basma. İkisi de duvarı duraklatır; cihaz duvar olarak kalır",
     "wall.exit_button": "Düğme",
     "wall.exit_hold": "Uzun basma",
     "palette.yours": "Sizinkiler",
@@ -1285,7 +1285,9 @@
     "sources": "Kaynağa göre",
     "signed": "Sıfır ortada",
     "water": "Su",
-    "gas": "Gaz"
+    "gas": "Gaz",
+    "normal": "Normal",
+    "huge": "Devasa"
   },
   "tone": {
     "accent": "Vurgu",

@@ -241,7 +241,7 @@ const CATALOGUE: ReadonlyArray<
     'fluvy-clock-card',
     FluvyClockCard,
     'Fluvy · Clock',
-    'Analog or digital, hero, side or tile, with or without weather, framed or bare.',
+    'Analog or digital, hero, side or tile, with or without weather, framed or bare, up to twice the size.',
   ],
   [
     'fluvy-calendar-card',

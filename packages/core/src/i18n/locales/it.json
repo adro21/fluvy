@@ -1092,11 +1092,11 @@
     "wall.paused": "Parete in pausa",
     "wall.resume": "Riprendi",
     "wall.leave": "Tieni premuto per uscire dalla parete",
-    "wall.leave_tap": "Esci dalla parete",
+    "wall.leave_tap": "Metti in pausa la parete",
     "wall.left": "Modalità parete disattivata",
     "wall.return": "Torna alla parete",
     "wall.exit": "Uscita",
-    "wall.exit_sub": "Nell’angolo in alto: una × per uscire, o una pressione nascosta per mettere in pausa",
+    "wall.exit_sub": "Nell’angolo in alto: una × da toccare, o una pressione nascosta. Entrambe mettono in pausa la parete; il dispositivo resta tale",
     "wall.exit_button": "Pulsante",
     "wall.exit_hold": "Pressione lunga",
     "palette.yours": "Le vostre",
@@ -1285,7 +1285,9 @@
     "sources": "Per fonte",
     "signed": "Centrato sullo zero",
     "water": "Acqua",
-    "gas": "Gas"
+    "gas": "Gas",
+    "normal": "Normale",
+    "huge": "Enorme"
   },
   "tone": {
     "accent": "Accento",

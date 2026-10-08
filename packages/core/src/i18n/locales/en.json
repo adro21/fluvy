@@ -1092,11 +1092,11 @@
     "wall.paused": "Wall paused",
     "wall.resume": "Resume",
     "wall.leave": "Hold to leave the wall",
-    "wall.leave_tap": "Leave the wall",
+    "wall.leave_tap": "Pause the wall",
     "wall.left": "Wall mode off",
     "wall.return": "Back to the wall",
     "wall.exit": "Way out",
-    "wall.exit_sub": "In the top corner: a × that leaves, or a hidden hold that pauses",
+    "wall.exit_sub": "In the top corner: a × to tap, or a hidden hold. Either pauses the wall; the device stays one",
     "wall.exit_button": "Button",
     "wall.exit_hold": "Long press",
     "palette.yours": "Yours",
@@ -1285,7 +1285,9 @@
     "sources": "By source",
     "signed": "Centred on zero",
     "water": "Water",
-    "gas": "Gas"
+    "gas": "Gas",
+    "normal": "Normal",
+    "huge": "Huge"
   },
   "tone": {
     "accent": "Accent",

@@ -1092,11 +1092,11 @@
     "wall.paused": "Wand gepauzeerd",
     "wall.resume": "Hervatten",
     "wall.leave": "Houd ingedrukt om de wand te verlaten",
-    "wall.leave_tap": "Wand verlaten",
+    "wall.leave_tap": "Wand pauzeren",
     "wall.left": "Wandmodus uit",
     "wall.return": "Terug naar de wand",
     "wall.exit": "Uitweg",
-    "wall.exit_sub": "In de bovenhoek: een × om te verlaten, of verborgen ingedrukt houden om te pauzeren",
+    "wall.exit_sub": "In de bovenhoek: een × om te tikken, of verborgen ingedrukt houden. Beide pauzeren de wand; het apparaat blijft er een",
     "wall.exit_button": "Knop",
     "wall.exit_hold": "Lang indrukken",
     "palette.yours": "Van jullie",
@@ -1285,7 +1285,9 @@
     "sources": "Per bron",
     "signed": "Nul in het midden",
     "water": "Water",
-    "gas": "Gas"
+    "gas": "Gas",
+    "normal": "Normaal",
+    "huge": "Enorm"
   },
   "tone": {
     "accent": "Accent",

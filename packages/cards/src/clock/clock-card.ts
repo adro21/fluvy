@@ -71,6 +71,8 @@ export interface ClockCardConfig extends FluvyCardConfig {
   show_date?: boolean;
   /** `false`: the hero or side clock without its card — no plate, no border, no padding — on the page itself. */
   frame?: boolean;
+  /** The digital hero's digits: the sheet's 64 px (`normal`), half as big again (`large`) or twice (`huge`). */
+  size?: 'normal' | 'large' | 'huge';
   /** Test hook (undocumented): an ISO instant that freezes the clock, so a render can be held against the sheet. */
   _now?: string;
 }
@@ -79,6 +81,11 @@ const CORE_LABELS = {
   weather: 'editor.weather',
   show_seconds: 'editor.seconds',
 } as const;
+/** The digital hero's digit scale by `size`. */
+const SCALE = { normal: 1, large: 1.5, huge: 2 } as const;
+const isSize = (value: unknown): value is keyof typeof SCALE =>
+  typeof value === 'string' && value in SCALE;
+
 const OWN_LABELS = {
   numerals: 'editor.numerals',
   show_week: 'editor.week',
@@ -103,8 +110,10 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     if (config.variant === 'tile') return 168;
     const padding = config.frame === false ? 40 : 0; // bare: the card's 20 px above and below are gone
     if (config.variant === 'side') return (weather ? 268 : 208) - padding;
-    if (config.face === 'digital')
-      return (weather && config.show_forecast !== false ? 196 : 136) - padding;
+    if (config.face === 'digital') {
+      const grown = 72 * ((isSize(config.size) ? SCALE[config.size] : 1) - 1); // the 72 line, scaled
+      return (weather && config.show_forecast !== false ? 196 : 136) - padding + grown;
+    }
     return (weather ? 352 : 340) - padding;
   }
 
@@ -191,6 +200,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     'title',
     'show_date',
     'frame',
+    'size',
   ]);
   /**
    * The older names: `variant` said analog or digital (now `face`) and `layout` the look (now `variant`, read by
@@ -218,6 +228,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
       show_week: false,
       show_forecast: Boolean(config['weather']),
       frame: true,
+      size: 'normal',
     };
   };
   static override getConfigForm(): LovelaceConfigForm {
@@ -234,7 +245,11 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
           selectField('face', ['analog', 'digital']),
           selectField('variant', ['hero', 'side', 'tile']),
         ),
-        grid(selectField('numerals', ['none', 'quarters', 'all']), textField('title')),
+        grid(
+          selectField('numerals', ['none', 'quarters', 'all']),
+          selectField('size', ['normal', 'large', 'huge']),
+        ),
+        textField('title'),
         boolField('show_seconds'),
         boolField('hour12'),
         boolField('show_date'),
@@ -278,7 +293,8 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     if (look === 'tile') return 4;
     const row = this.config?.weather && this.config.show_forecast !== false ? 1 : 0;
     if (look === 'side') return (this.analog ? 4 : 3) + row;
-    return (this.analog ? 7 : 3) + row;
+    const grown = this.analog ? 0 : Math.ceil((72 * (this.scale - 1)) / 50); // the digits' extra height, in rows
+    return (this.analog ? 7 : 3) + row + grown;
   }
 
   override getGridOptions(): LovelaceGridOptions {
@@ -357,6 +373,12 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
   /** `frame: false` on a hero or side clock: no card around it. A tile is its own shape and keeps it. */
   private get bare(): boolean {
     return this.config?.frame === false && this.look !== 'tile';
+  }
+
+  /** The digital hero's digit scale: `size`, on the hero digits only. */
+  private get scale(): number {
+    const size = this.config?.size;
+    return !this.analog && this.look === 'hero' && isSize(size) ? SCALE[size] : 1;
   }
 
   /** The sheet's defaults: a second hand on the hero face only; digital seconds on request, never in a tile. */
@@ -447,6 +469,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
           : this.bare
             ? this.width
             : this.contentWidth,
+      scale: this.scale,
       ruler: this.ruler,
     };
   }

@@ -1092,11 +1092,11 @@
     "wall.paused": "Parede pausada",
     "wall.resume": "Retomar",
     "wall.leave": "Segure para sair da parede",
-    "wall.leave_tap": "Sair da parede",
+    "wall.leave_tap": "Pausar a parede",
     "wall.left": "Modo parede desativado",
     "wall.return": "Voltar à parede",
     "wall.exit": "Saída",
-    "wall.exit_sub": "No canto superior: um × que sai, ou um toque oculto que pausa",
+    "wall.exit_sub": "No canto superior: um × para tocar, ou um toque oculto. Ambos pausam a parede; o dispositivo continua sendo uma",
     "wall.exit_button": "Botão",
     "wall.exit_hold": "Toque longo",
     "palette.yours": "Suas",
@@ -1285,7 +1285,9 @@
     "sources": "Por fonte",
     "signed": "Centrado no zero",
     "water": "Água",
-    "gas": "Gás"
+    "gas": "Gás",
+    "normal": "Normal",
+    "huge": "Enorme"
   },
   "tone": {
     "accent": "Destaque",

@@ -1092,11 +1092,11 @@
     "wall.paused": "Mur en pause",
     "wall.resume": "Reprendre",
     "wall.leave": "Maintenez pour quitter le mur",
-    "wall.leave_tap": "Quitter le mur",
+    "wall.leave_tap": "Mettre le mur en pause",
     "wall.left": "Mode mur désactivé",
     "wall.return": "Revenir au mur",
     "wall.exit": "Sortie",
-    "wall.exit_sub": "Dans le coin supérieur : un × pour quitter, ou un appui caché pour mettre en pause",
+    "wall.exit_sub": "Dans le coin supérieur : un × à toucher, ou un appui caché. Les deux mettent le mur en pause ; l’appareil en reste un",
     "wall.exit_button": "Bouton",
     "wall.exit_hold": "Appui long",
     "palette.yours": "Les vôtres",
@@ -1285,7 +1285,9 @@
     "sources": "Par source",
     "signed": "Centré sur zéro",
     "water": "Eau",
-    "gas": "Gaz"
+    "gas": "Gaz",
+    "normal": "Normale",
+    "huge": "Énorme"
   },
   "tone": {
     "accent": "Accent",

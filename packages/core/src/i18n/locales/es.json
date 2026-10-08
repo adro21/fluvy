@@ -1092,11 +1092,11 @@
     "wall.paused": "Pared en pausa",
     "wall.resume": "Reanudar",
     "wall.leave": "Mantén pulsado para salir de la pared",
-    "wall.leave_tap": "Salir del modo pared",
+    "wall.leave_tap": "Pausar el modo pared",
     "wall.left": "Modo pared desactivado",
     "wall.return": "Volver a la pared",
     "wall.exit": "Salida",
-    "wall.exit_sub": "En la esquina superior: una × que sale, o una pulsación oculta que pausa",
+    "wall.exit_sub": "En la esquina superior: una × para tocar, o una pulsación oculta. Ambas pausan la pared; el dispositivo sigue siéndolo",
     "wall.exit_button": "Botón",
     "wall.exit_hold": "Pulsación larga",
     "palette.yours": "Tuyas",
@@ -1285,7 +1285,9 @@
     "sources": "Por fuente",
     "signed": "Centrado en cero",
     "water": "Agua",
-    "gas": "Gas"
+    "gas": "Gas",
+    "normal": "Normal",
+    "huge": "Enorme"
   },
   "tone": {
     "accent": "Acento",

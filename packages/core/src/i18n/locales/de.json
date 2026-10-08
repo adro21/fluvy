@@ -1092,11 +1092,11 @@
     "wall.paused": "Wand pausiert",
     "wall.resume": "Fortsetzen",
     "wall.leave": "Gedrückt halten, um die Wand zu verlassen",
-    "wall.leave_tap": "Wand verlassen",
+    "wall.leave_tap": "Wand pausieren",
     "wall.left": "Wandmodus aus",
     "wall.return": "Zurück zur Wand",
     "wall.exit": "Ausgang",
-    "wall.exit_sub": "In der oberen Ecke: ein ×, das verlässt, oder ein verborgenes Halten, das pausiert",
+    "wall.exit_sub": "In der oberen Ecke: ein × zum Tippen oder ein verborgenes Halten. Beides pausiert die Wand; das Gerät bleibt eine",
     "wall.exit_button": "Taste",
     "wall.exit_hold": "Lange drücken",
     "palette.yours": "Eure",
@@ -1285,7 +1285,9 @@
     "sources": "Nach Quelle",
     "signed": "Null in der Mitte",
     "water": "Wasser",
-    "gas": "Gas"
+    "gas": "Gas",
+    "normal": "Normal",
+    "huge": "Riesig"
   },
   "tone": {
     "accent": "Akzent",

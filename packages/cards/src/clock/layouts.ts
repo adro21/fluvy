@@ -36,8 +36,15 @@ export interface ClockModel {
   };
   /** Content width of the surface: the card's or the tile's. */
   readonly width: number;
+  /** The hero digits' scale: 1 on the sheet, 1.5 or 2 for a wall read from across the room. */
+  readonly scale: number;
   readonly ruler: TextRuler;
 }
+
+/** The sheet's big digits: 64 on a 72 line, the unit 24 with 8 before it. A scale multiplies all four. */
+const BIG = { font: 64, line: 72, unit: 24, gap: 8 } as const;
+/** The scales a clock may ask for, largest first: an asked scale steps down to the first whose digits fit. */
+const SCALES = [2, 1.5, 1] as const;
 
 type Part = TemplateResult | typeof nothing;
 
@@ -74,10 +81,17 @@ function units(m: ClockModel): string[] {
   return seconds ? [[seconds, period].filter(Boolean).join(' '), period] : [period];
 }
 
-function big(time: string, unit: string): TemplateResult {
-  return html`<p class="ck-big" data-align="optical">
+function big(time: string, unit: string, scale = 1): TemplateResult {
+  // the sheet's sizes are the class's; a larger clock writes its own, in the same proportions
+  const style =
+    scale === 1
+      ? nothing
+      : `font-size:${BIG.font * scale}px;line-height:${BIG.line * scale}px;height:${BIG.line * scale}px`;
+  const unitStyle =
+    scale === 1 ? nothing : `font-size:${BIG.unit * scale}px;margin-left:${BIG.gap * scale}px`;
+  return html`<p class="ck-big" data-align="optical" style=${style}>
     <span data-baseline="d">${time}</span
-    >${unit ? html`<span class="ck-big__unit" data-baseline="d">${unit}</span>` : nothing}
+    >${unit ? html`<span class="ck-big__unit" data-baseline="d" style=${unitStyle}>${unit}</span>` : nothing}
   </p>`;
 }
 
@@ -144,22 +158,32 @@ export function heroAnalog(m: ClockModel): TemplateResult {
 
 export function heroDigital(m: ClockModel): TemplateResult {
   const { time } = m.clock;
+  // measured once at the sheet's size: text scales with its font, so a scale multiplies the width
   const fits =
-    (available: number) =>
+    (available: number, scale = 1) =>
     (unit: string): boolean =>
-      m.ruler.width('ck-big', widest(time), 'ck-big__unit', unit) <= available;
+      m.ruler.width('ck-big', widest(time), 'ck-big__unit', unit) * scale <= available;
   const row = forecastRow(m);
+  const all = units(m);
+  /** The asked scale with the first unit that fits, else the next scale down; the sheet's size at the last. */
+  const sized = (available: number): { scale: number; unit: string } => {
+    for (const scale of SCALES.filter((candidate) => candidate <= m.scale)) {
+      const unit = all.find(fits(available, scale));
+      if (unit !== undefined) return { scale, unit };
+    }
+    return { scale: 1, unit: firstFit(all, fits(available)) ?? '' };
+  };
 
   // No row to carry the weather: the condition and the temperature stand beside the time — when the
   // time, with everything it was asked to show, leaves them room. Otherwise they join the caption.
   const beside = m.width - 64 - 8;
-  const all = units(m);
   if (m.sky && row === nothing && fits(beside)(all[0] ?? '')) {
     const { sky } = m;
     const line = caption(m, beside, false);
+    const { scale } = sized(beside);
     return html`<div class="ck-split">
       <div>
-        ${big(time, all[0] ?? '')}${line ? html`<p class="ck-caption ck-caption--left" data-baseline="dt">${line}</p>` : nothing}
+        ${big(time, all[0] ?? '', fits(beside, scale)(all[0] ?? '') ? scale : 1)}${line ? html`<p class="ck-caption ck-caption--left" data-baseline="dt">${line}</p>` : nothing}
       </div>
       <div class="ck-split__side">
         ${ico(sky.glyph, sky.ok ? m.tone : 'off', { hero: true })}
@@ -172,8 +196,9 @@ export function heroDigital(m: ClockModel): TemplateResult {
   }
 
   const line = caption(m, m.width, true);
+  const { scale, unit } = sized(m.width);
   return html`
-    ${big(time, firstFit(all, fits(m.width)) ?? '')}
+    ${big(time, unit, scale)}
     ${line ? html`<p class="ck-caption ck-caption--left">${line}</p>` : nothing} ${row}
   `;
 }
