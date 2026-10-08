@@ -22,3 +22,14 @@ spread the same things across Home, Lights, Security, Sensors and the room pages
 
 The house has no door, window or lock sensors, so "secure" means camera detections, blinds and presence.
 Fluvy's built-in Wall dashboard was created alongside at `/fluvy-wall` to look at for the tablet step.
+
+## As built (2026-10-07)
+
+- Home: the greeting; *Lights* heading counting the 16 real lights ("8 of 16 on", opens Lights) with two chips,
+  *All lights off* (`light.turn_off` on `all`, behind a confirmation) and *See lights*; *Around the house* as
+  compact tiles (fireplace, TV, bedroom blinds, living room shade); *Outside*, the three cameras' person detectors;
+  four Hue scenes with their own icons. Second column: the thermostat (`compact`, heat and cool only, no presets or
+  fan), the room temperatures, the weather. Third: the three cameras as Home Assistant picture cards.
+- Security: who is home, every detection, each camera with its person and vehicle rows.
+- Sensors became *System* (batteries, updates) rather than being folded away: updates are not security.
+- The previous configuration of `fluvy-auto` is in `~/.config/fluvy/dashboard-fluvy-auto-backup-2026-10-07-before-test.json`.
