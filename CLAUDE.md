@@ -98,7 +98,11 @@ node tools/dev/ha.mjs ws "$(python3 -c "import json; print(json.dumps({'type':'l
 Always save a copy of the whole configuration in `~/.config/fluvy/` before writing (the Lights tab's previous and
 current layouts are there, `dashboard-fluvy-auto-backup-*.json` and `dashboard-fluvy-auto-lights-v1.json`). The
 Lights tab was rebuilt on 2026-10-07 as one card per room (`docs/plans/2026-10-07-lights-tab-layout-design.md`).
-A Chrome tab (the browser tools) is the way to look at the result; close it afterwards.
+A Chrome tab (the browser tools) is the way to look at the result; close it afterwards. Two more dashboards
+exist: `/fluvy-wall`, the wall tablet's (a Samsung Galaxy Tab A11+, landscape, about 1280 × 800): a hand-made copy of
+the main Home with a chips row of tabs, since wall mode hides the header; and `/fluvy-test`, a trial glance-first
+Home (`docs/plans/2026-10-07-glanceable-home-test-design.md`). The TV is left off every dashboard at the owner's
+request. Say so before restarting Home Assistant or resizing browser windows.
 
 ## Verifying in the owner's browser
 
