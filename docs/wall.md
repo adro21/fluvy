@@ -35,15 +35,15 @@ Settings are never walls, so a tablet can always be administered from itself.
 The house chooses the way out in the *Wall* tab (*Way out*), and nobody is ever locked in:
 
 - **Button** (the default): a small × in the top-right corner. It is there when the wall comes and whenever someone
-  touches the screen or moves a pointer, and it fades when the wall is at rest. A tap takes the device out of wall
-  mode: the sidebar and the header return, and a notice, *Wall mode off · Back to the wall*, offers the way back for
-  a few seconds. The device stays out until it is made a wall again (the notice, the tab's switch, or `?kiosk`).
+  touches the screen or moves a pointer, and it fades when the wall is at rest. A tap pauses the wall: the sidebar
+  and the header return, with *Wall paused · Resume* at the foot of the page.
 - **Long press**: nothing shows. Press and hold the top-right corner for a second and a half: a ring fills, the
-  tablet taps back, and the wall pauses — the chrome returns with *Wall paused · Resume*. The pause lasts until
-  *Resume*, or until the screensaver would have started (with the screensaver set to *Never*, until a reload), and
-  the device stays a wall: for a tablet that should not be left by a passing hand.
+  tablet taps back, and the wall pauses the same way: for a tablet that should not be left by a passing hand.
 
-`?kiosk=0` on the address leaves wall mode too, from anywhere.
+Either way the device stays a wall. The pause lasts until *Resume*, or until the screensaver would have started
+(with the screensaver set to *Never*, until a reload); the next visit is a wall again. To make the tablet a device
+again for good, switch *Wall panel* off in the *Wall* tab, or open the address with `?kiosk=0` on it — a notice,
+*Wall mode off · Back to the wall*, then offers the way back for a few seconds.
 
 ## Reading from across the room
 

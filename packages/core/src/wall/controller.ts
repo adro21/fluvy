@@ -267,10 +267,11 @@ export function createWall(deps: WallDeps): WallHandle {
     void ui().then((pieces) => {
       if (phase === 'off' || phase === 'paused') return;
       stopCorner?.();
-      // the house chooses the way out: a button that leaves, or a hidden hold that pauses
+      // the house chooses the way out — a button, or a hidden hold — and either pauses: the device stays a
+      // wall, so a tap to administer something does not undo the tablet's setting (the panel's switch does)
       stopCorner = pieces.corner({
         mode: settings.exit,
-        onLeave: settings.exit === 'hold' ? pause : exit,
+        onLeave: pause,
         hass: deps.hass,
       });
     });

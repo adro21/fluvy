@@ -5,6 +5,19 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **A bigger clock**: `size: large` or `huge` on a digital hero clock draws its digits half as big again or twice
+  the size, for a wall read from across the room. Where the column is too narrow for the size asked, the digits
+  step down to the largest that fits.
+
+### Changed
+
+- **The wall's × pauses**: a tap on the corner button pauses the wall like the long press does — the sidebar and
+  the header return with *Wall paused · Resume*, and the wall comes back by itself when the screensaver would have,
+  or on the next visit. It no longer switches *Wall panel* off for the device; the *Wall* tab's switch and
+  `?kiosk=0` still do.
+
 ## [1.5.5] — 2026-10-08
 
 ### Added

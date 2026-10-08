@@ -149,8 +149,8 @@ describe('the wall controller', () => {
     wall.stop();
   });
 
-  it('leaves for good on the corner’s button: the device forgets it is a wall, a notice offers the way back', async () => {
-    const { wall, shown, corner, notice } = setup();
+  it('pauses on the corner’s button too: the device stays a wall, and comes back by itself', async () => {
+    const { wall, shown, corner, notice } = setup({ after: 5 });
     await vi.advanceTimersByTimeAsync(1);
     expect(corner()?.mode).toBe('button'); // the default way out
     const device = (): { wall: boolean } =>
@@ -158,8 +158,35 @@ describe('the wall controller', () => {
 
     corner()!.onLeave();
     await vi.advanceTimersByTimeAsync(1);
-    expect(wall.phase()).toBe('off');
+    expect(wall.phase()).toBe('paused');
     expect(document.documentElement.hasAttribute(WALL_ATTRIBUTE)).toBe(false);
+    expect(device().wall).toBe(true); // a tap on the × is not the tablet's setting being undone
+    expect(sessionStorage.getItem(PAUSED_KEY)).toBe('1');
+    expect(notice()?.kind).toBe('paused');
+    expect(shown.toast).toBe(1);
+
+    notice()!.onAction(); // "Resume"
+    await vi.advanceTimersByTimeAsync(1);
+    expect(wall.phase()).toBe('awake');
+    expect(device().wall).toBe(true);
+    expect(shown.toast).toBe(0);
+
+    corner()!.onLeave(); // and left alone, the wall returns when the screensaver would have come
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 1);
+    expect(wall.phase()).toBe('awake');
+    expect(device().wall).toBe(true);
+    wall.stop();
+  });
+
+  it('leaves for good through exit(): the device forgets it is a wall, a notice offers the way back', async () => {
+    const { wall, shown, notice } = setup();
+    await vi.advanceTimersByTimeAsync(1);
+    const device = (): { wall: boolean } =>
+      JSON.parse(localStorage.getItem(DEVICE_KEY) ?? '{}') as { wall: boolean };
+
+    wall.exit();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(wall.phase()).toBe('off');
     expect(device().wall).toBe(false);
     expect(sessionStorage.getItem(PAUSED_KEY)).toBeNull(); // left, not paused: it does not come back by itself
     expect(notice()?.kind).toBe('left');
@@ -171,7 +198,7 @@ describe('the wall controller', () => {
     expect(device().wall).toBe(true);
     expect(shown.toast).toBe(0);
 
-    corner()!.onLeave(); // and left alone, the notice goes after a moment; the device stays out
+    wall.exit(); // and left alone, the notice goes after a moment; the device stays out
     await vi.advanceTimersByTimeAsync(8001);
     expect(shown.toast).toBe(0);
     expect(wall.phase()).toBe('off');
