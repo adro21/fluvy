@@ -16,7 +16,8 @@ Settings are never walls, so a tablet can always be administered from itself.
 
 ## On the wall
 
-- The sidebar and the dashboard header are gone; the dashboard fills the screen inside the tablet's safe area.
+- The sidebar and the dashboard header are gone; the dashboard fills the screen inside the tablet's safe area, and
+  its columns grow to the screen's width instead of stopping at the 480 px they keep on a computer.
   There is no swipe between views and no gesture of Fluvy's: the dashboard's own tabs remain.
 - **Screensaver**: after 2, 5, 10 or 30 minutes without a touch (or never), the screen shows the clock and the weather
   over the wall background, or dims to black. Any touch wakes it — that touch does nothing else. A motion or

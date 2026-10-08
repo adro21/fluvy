@@ -5,6 +5,11 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **A wall fills its screen**: on a wall panel, a dashboard's columns grow to the tablet's width instead of stopping
+  at 480 px, so a landscape tablet no longer shows empty bands at its sides. Computers and phones keep the width.
+
 ## [1.5.3] — 2026-10-07
 
 ### Fixed

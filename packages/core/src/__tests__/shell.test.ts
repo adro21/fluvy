@@ -171,6 +171,11 @@ describe('shell lifecycle', () => {
     expect(running.report().sheets.filter((s) => s.id.startsWith('wall:'))).toHaveLength(3);
   });
 
+  it('lets a wall dashboard’s columns grow to the screen instead of stopping at their usual width', () => {
+    const css = SHEETS.find((s) => s.id === 'wall:dashboard')!.css;
+    expect(css).toMatch(/:host\s*{[^}]*--ha-view-sections-column-max-width:\s*100vw;/);
+  });
+
   it('fills the view tabs’ sheet whatever the theme: its rules hang on our marks alone', async () => {
     const { env, classes, theme } = page();
     classes.set('hui-root', { elementStyles: [] });
