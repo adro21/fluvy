@@ -311,6 +311,21 @@ export const sheet: SheetSpec = {
       ],
     },
     {
+      title: 'Camera · compact',
+      cards: [
+        {
+          type: 'custom:fluvy-camera-card',
+          entity: 'camera.driveway',
+          name: 'Driveway',
+          variant: 'compact',
+        },
+      ],
+    },
+    {
+      title: 'Camera · compact, unavailable',
+      cards: [{ type: 'custom:fluvy-camera-card', entity: 'camera.garage', variant: 'compact' }],
+    },
+    {
       title: 'Camera · image error',
       cards: [{ type: 'custom:fluvy-camera-card', entity: 'camera.back_garden' }],
     },
