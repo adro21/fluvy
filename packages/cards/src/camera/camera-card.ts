@@ -170,12 +170,13 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       .dv-card--compact .dv-cam__tap {
         border-radius: var(--fluvy-radius-card);
       }
-      /* the name pill: bottom left, the live dot before the name, never wider than the picture */
+      /* the name pill: 8 from the corner (a thumbnail a third of a phone wide keeps "Driveway" whole), the live
+         dot before the name, never wider than the picture */
       .dv-cam__name {
         top: auto;
-        bottom: 12px;
-        left: 12px;
-        max-width: calc(100% - 24px);
+        bottom: 8px;
+        left: 8px;
+        max-width: calc(100% - 16px);
         padding: 0; /* sized to its words by fitPills (8 a side, on the 4 grid) */
         z-index: 4;
         pointer-events: none;

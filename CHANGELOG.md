@@ -5,6 +5,11 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **The compact camera's name pill** sits 8 px from the picture's corner instead of 12, so a thumbnail a third of
+  a phone wide keeps a name like "Driveway" whole instead of ending in an ellipsis.
+
 ## [1.5.14] — 2026-10-09
 
 ### Added
