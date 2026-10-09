@@ -194,6 +194,8 @@ describe('shell lifecycle', () => {
     // every rule is scoped to a mark (the tabs, the corner): a root without one is Home Assistant's
     for (const rule of spec.css.split('\n'))
       expect(rule).toMatch(/^:host\(\[fluvy-(tab|flat|header-page|actions-menu)/);
+    // the tab row's strip scrolls inside a box clipped sideways: past it, nothing reaches the page's width
+    expect(spec.css).toMatch(/:host\(\[fluvy-tabs\]\) ha-tab-group \{[^}]*overflow-x: clip/);
   });
 
   it('fills a choice’s sheets only while the house makes it, and only with the theme', async () => {

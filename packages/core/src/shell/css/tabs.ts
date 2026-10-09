@@ -14,7 +14,9 @@ import { mask } from './shared.js';
  * wide screen they stay, for the mouse. The dashboard's name never shrinks for the tabs (the row scrolls; a long name
  * ends in an ellipsis at 40 %), and stands on the view's column: 12 + 12 from the bar's edge, the view's 24 grown with
  * this device's size. On a wide screen Home Assistant's chevrons sit on the header's colour, the words fading under
- * them.
+ * them. The row's own box is clipped sideways: the strip inside scrolls, but on an iPhone the part of it past the
+ * box leaked into the page's width as the header's fixed box laid out, and the whole dashboard scrolled sideways
+ * until a view was re-entered; clipped at the group, nothing of the strip can reach the page.
  */
 
 const ROOT = ':host([fluvy-tabs])';
@@ -29,7 +31,7 @@ const HIDDEN = ':host([fluvy-tabs="hidden"])';
 const FADE =
   'linear-gradient(90deg, transparent, #000 var(--fluvy-tabs-fade-start, 0px), #000 calc(100% - var(--fluvy-tabs-fade-end, 24px)), transparent)';
 
-export const viewTabsCss = `${ROOT} ha-tab-group { --ha-tab-indicator-color: transparent; }
+export const viewTabsCss = `${ROOT} ha-tab-group { --ha-tab-indicator-color: transparent; overflow-x: clip; }
 ${ROOT} ha-tab-group::part(tabs) { border-block-end: 0; }
 ${ROOT} ${TAB} { display: inline-flex; align-items: center; gap: 8px; box-sizing: border-box; padding-inline: 12px; border-block-end: 0; margin-block-end: 0; opacity: 1; font-size: 14px; font-weight: 600; letter-spacing: 0; line-height: 20px; white-space: nowrap; color: var(--fluvy-text-secondary, var(--secondary-text-color)); transition: color 160ms ease, background-color 160ms ease; }
 ${ROOT} ${TAB}::part(base) { padding: 0; color: inherit; }

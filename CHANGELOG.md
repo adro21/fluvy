@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A dashboard no longer scrolls sideways on an iPhone** when it opens: the header's row of view tabs is clipped at
+  its own box, so the part of the strip past it (it scrolls inside) can no longer leak into the page's width as
+  the fixed header lays out — which it did on an iPhone until a view was re-entered.
+
 ## [1.5.9] — 2026-10-09
 
 ### Changed
