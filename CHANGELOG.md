@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.20] — 2026-10-09
+
 ### Added
 
 - **Where devices open, by kind.** *Where devices open* in the panel's *Wall* tab: phones, tablets and computers
