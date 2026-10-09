@@ -59,8 +59,12 @@ try {
   const home =
     (device && typeof device.home === 'string' && device.home) ||
     (wall ? (cache?.house?.wall?.dashboards?.[0] ?? '') : '');
-  if (home && !home.includes('/') && location.pathname === '/')
-    history.replaceState(history.state, '', `/${home}${location.search}${location.hash}`);
+  if (home && !home.includes('/') && window.location.pathname === '/')
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `/${home}${window.location.search}${window.location.hash}`,
+    );
   if (device && ZOOMS.includes(device.zoom) && device.zoom !== 100)
     document.documentElement.style.setProperty('--fluvy-zoom', String(device.zoom / 100));
 } catch {
