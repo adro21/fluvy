@@ -54,8 +54,9 @@ Home Assistant's *Set as default* (since 2025.12) chooses one dashboard for ever
 Each device may choose its own under *This device · Opens on* in the *Wall* tab: a phone opens on its phone
 dashboard, a computer on the full one, and a wall with no choice of its own opens on the house's first wall
 dashboard. The choice stays in the device (`fluvy:device`, `home`); the loader reads it before Home Assistant
-routes, so an app opened at its root goes straight there and the default never shows first. A link to a page is
-still a link to that page: only the root is sent on.
+routes, so an app opened at its root goes straight there and the default never shows first, and the build sends a
+page that opened on Home Assistant's default dashboard (the phone app reopens on the last page it showed) there
+too. A link to any other page is still a link to that page.
 
 ## Reading from across the room
 

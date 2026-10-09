@@ -19,6 +19,8 @@ export { startShell, themed, type ShellHandle, type ShellReport } from './shell/
 export * from './look/index.js';
 export * from './settings/index.js';
 export { startWall } from './wall/start.js';
+export { startHome, homeRedirect } from './settings/home.js';
+export type { HomeStartOptions, HomeRedirectInput } from './settings/home.js';
 export { wallDark } from './wall/schedule.js';
 export type { SunLike } from './wall/schedule.js';
 export type { WallFacade, WallStartOptions } from './wall/start.js';

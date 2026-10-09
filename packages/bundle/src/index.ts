@@ -7,6 +7,7 @@ import {
   ensureFonts,
   registerIcons,
   setFontFolder,
+  startHome,
   startLook,
   startShell,
   startWall,
@@ -52,6 +53,8 @@ if (host.__fluvy) {
   const look = startLook();
   // the size this device reads its dashboards at (`?zoom=` remembered, the loader's early variable taken over)
   startZoom();
+  // the dashboard this device opens on: the root (the loader sent it on already) or the default dashboard
+  startHome({ look });
   const fluvy = {
     version,
     shell: startShell(),

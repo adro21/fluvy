@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A device's own dashboard holds in the phone app.** The app reopens on the last page it showed rather than at
+  the root, so a device's *Opens on* choice is now applied at launch on Home Assistant's default dashboard as well
+  as at the root; any other page stays the page it is.
+
 ## [1.5.17] — 2026-10-09
 
 ### Added
