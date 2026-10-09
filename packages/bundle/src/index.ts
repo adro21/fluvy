@@ -8,7 +8,6 @@ import {
   registerIcons,
   setFontFolder,
   startLook,
-  startOverflowReport,
   startShell,
   startWall,
   startZoom,
@@ -71,8 +70,6 @@ if (host.__fluvy) {
     fluvy.history = done;
   });
   badge(`v${version}`);
-  // a diagnostic while a phone's dashboard scrolls sideways: what is wide goes to Home Assistant's log
-  startOverflowReport();
 }
 
 export { version };

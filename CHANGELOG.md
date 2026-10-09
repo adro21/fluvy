@@ -5,6 +5,11 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Removed
+
+- **The sideways-scroll diagnostic** (the `fluvy.overflow` lines in Home Assistant's log, and the brief flicker
+  of a page it had to lay out again): the cause was found and fixed in 1.5.12.
+
 ## [1.5.12] — 2026-10-09
 
 ### Fixed

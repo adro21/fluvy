@@ -18,7 +18,6 @@ export {
 export { EARLY_KEY, LookEngine, type EarlyLook } from './engine.js';
 export { lookHandle, startLook, type LookHandle, type LookPreview } from './start.js';
 export { applyZoom, startZoom, ZOOM_VAR } from './zoom.js';
-export { startOverflowReport } from './overflow-report.js';
 export {
   CHROME_DEFAULTS,
   parseChrome,
