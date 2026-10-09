@@ -66,7 +66,8 @@ export function defaultPanelOf(
     stored = undefined;
   }
   const panel = app.userData?.default_panel || app.systemData.default_panel || stored || 'home';
-  return panel === 'lovelace' && !app.panels?.['lovelace']?.config ? 'home' : panel;
+  const overview = app.panels?.['lovelace'] as { readonly config?: unknown } | undefined;
+  return panel === 'lovelace' && !overview?.config ? 'home' : panel;
 }
 
 /** Once per page load: sends the page to the device's dashboard when it opened at the root or on the default. */
