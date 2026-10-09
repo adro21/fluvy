@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **The camera card's compact style** (`variant: compact`): the picture alone, edge to edge, with the camera's
+  name and the live dot in one pill — no head, no rows, no overlay buttons — and it may sit a third of a section
+  wide, so three cameras fit one row on a phone. A tap still opens the live view.
+
 ## [1.5.13] — 2026-10-09
 
 ### Removed
