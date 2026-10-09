@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.17] — 2026-10-09
+
 ### Added
 
 - **Each device opens on the dashboard it chooses.** Home Assistant's *Set as default* has been one choice for
