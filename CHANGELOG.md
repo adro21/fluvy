@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.14] — 2026-10-09
+
 ### Added
 
 - **The camera card's compact style** (`variant: compact`): the picture alone, edge to edge, with the camera's
