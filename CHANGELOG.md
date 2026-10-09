@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A dashboard no longer scrolls sideways on an iPhone** after it opens or is returned to from another one. A
+  card draws its controls to its measured width; on a page's first load WebKit can drop the measurement that
+  corrects the first guess, and a tile kept a ruler far wider than itself, pushing the page out past the screen
+  until a view was re-entered. Every card now reads its laid-out width again at the next frame after it connects
+  and after each render, and draws to it.
+
 ## [1.5.7] — 2026-10-08
 
 ### Changed

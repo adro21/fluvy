@@ -138,6 +138,8 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
   declare layout?: string;
 
   private resizeObserver: ResizeObserver | undefined;
+  /** The frame that will read the laid-out width again, 0 when none is due. */
+  private widthCheck = 0;
   /** The card's own colour and its items', derived on the palette the card wears. */
   protected readonly accents = new AccentSheet();
 
@@ -184,6 +186,7 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
       if (next > 0 && next !== this.width) this.width = next;
     });
     this.resizeObserver.observe(this);
+    this.checkWidth();
     if (this.renderRoot instanceof ShadowRoot) this.accents.adopt(this.renderRoot);
     this.syncTheme();
   }
@@ -193,6 +196,8 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
     live.delete(this);
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
+    cancelAnimationFrame(this.widthCheck);
+    this.widthCheck = 0;
     for (const entry of this.optimistic.values()) clearTimeout(entry.timer);
     this.optimistic.clear();
   }
@@ -267,6 +272,40 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
     super.updated(changed);
     this.accents.host(this.config?.color);
     this.accents.commit();
+    this.checkWidth();
+  }
+
+  /**
+   * The width is read again from the layout at the next frame, after the card connects and after each render.
+   * The observer is the usual source, but a page's first load runs many observers at once, and WebKit then drops
+   * the notifications its loop limit cuts off ("ResizeObserver loop completed with undelivered notifications"):
+   * a card drawn to the 360 it assumed before its first measure stayed that way — a ruler 320 wide in a tile of
+   * 189, and the dashboard scrolling sideways on an iPhone until a view was re-entered. The frames of every card
+   * share one layout; a width that differs by more than the rounding is taken as the notification that never came.
+   */
+  private checkWidth(): void {
+    if (this.widthCheck || typeof requestAnimationFrame !== 'function') return;
+    this.widthCheck = requestAnimationFrame(() => {
+      this.widthCheck = 0;
+      if (!this.isConnected) return;
+      const next = this.laidOutWidth();
+      if (next > 0 && Math.abs(next - this.width) > 1) this.width = next;
+    });
+  }
+
+  /** The content box as the observer would report it: the layout's width less the host's padding and borders. */
+  private laidOutWidth(): number {
+    const outer = this.offsetWidth; // the layout's own size: a card scaling in still measures as laid out
+    if (!outer) return 0;
+    const style = getComputedStyle(this);
+    const px = (value: string): number => Number.parseFloat(value) || 0;
+    return Math.round(
+      outer -
+        px(style.paddingLeft) -
+        px(style.paddingRight) -
+        px(style.borderLeftWidth) -
+        px(style.borderRightWidth),
+    );
   }
 
   /* ---------- optimistic state ---------- */
