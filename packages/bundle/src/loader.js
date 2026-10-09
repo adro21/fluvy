@@ -56,9 +56,17 @@ try {
   // the dashboard this device opens on (`deviceHome` in core's settings/device.ts, the same rule): its own
   // choice, else a wall's first wall dashboard. Only an app opened at its root is sent there — before it routes,
   // so Home Assistant's own default never shows first; a link to a page is a link to that page.
+  const touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  const kind =
+    wall || (touch && Math.min(window.screen.width, window.screen.height) >= 600)
+      ? 'tablet'
+      : touch
+        ? 'phone'
+        : 'computer';
   const home =
     (device && typeof device.home === 'string' && device.home) ||
-    (wall ? (cache?.house?.wall?.dashboards?.[0] ?? '') : '');
+    (wall ? (cache?.house?.wall?.dashboards?.[0] ?? '') : '') ||
+    (typeof cache?.house?.wall?.homes?.[kind] === 'string' ? cache.house.wall.homes[kind] : '');
   if (home && !home.includes('/') && window.location.pathname === '/')
     window.history.replaceState(
       window.history.state,

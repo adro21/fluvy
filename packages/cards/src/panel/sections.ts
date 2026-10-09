@@ -27,6 +27,7 @@ import {
   type WallSettings,
   wearsLook,
   isTablet,
+  DEVICE_KINDS,
 } from '@fluvy/core';
 import { chips, head, icon, listRow, options } from '@fluvy/ui';
 import '@fluvy/ui/select';
@@ -1249,6 +1250,26 @@ export function wall(ctx: PanelContext): TemplateResult {
       )}
     </section>
     <section class="fv-card pn-card">
+      ${head({ icon: 'home', title: ctx.t('wall.homes'), sub: ctx.t('wall.homes_sub') })}
+      ${DEVICE_KINDS.map(
+        (kind) =>
+          html`<p class="fv-label pn-label">${ctx.t(`wall.homes_${kind}`)}</p>
+            <fluvy-select
+              .label=${ctx.t(`wall.homes_${kind}`)}
+              .value=${settings.homes[kind] || 'house'}
+              .options=${homeOptions(ctx)}
+              .disabled=${!admin}
+              @fluvy-change=${(event: CustomEvent<SelectChangeDetail>) =>
+                edit({
+                  homes: {
+                    ...settings.homes,
+                    [kind]: event.detail.value === 'house' ? '' : event.detail.value,
+                  },
+                })}
+            ></fluvy-select>`,
+      )}
+    </section>
+    <section class="fv-card pn-card">
       ${head({
         icon: 'grid',
         title: ctx.t('wall.dashboards'),
@@ -1439,20 +1460,24 @@ function deviceSize(ctx: PanelContext): TemplateResult {
     )}`;
 }
 
-/** The dashboard this device opens Home Assistant on: Home Assistant's own default, or one of the house's. */
-function deviceHome(ctx: PanelContext): TemplateResult {
-  const home = ctx.deviceEdit.home ?? ctx.device.home;
-  const wallFirst = ctx.shown.wall.dashboards[0];
-  const options: SelectOption[] = [
-    {
-      value: 'house',
-      label: ctx.t('wall.home_house'),
-      ...(wallFirst ? { hint: ctx.t('wall.home_wall', { name: wallFirst }) } : {}),
-    },
+/** Home Assistant's own default, or one of the house's dashboards. */
+function homeOptions(ctx: PanelContext, hint?: string): SelectOption[] {
+  return [
+    { value: 'house', label: ctx.t('wall.home_house'), ...(hint ? { hint } : {}) },
     ...ctx.dashboards
       .filter((d) => d.urlPath !== 'fluvy')
       .map((d) => ({ value: d.urlPath, label: d.title, hint: `/${d.urlPath}` })),
   ];
+}
+
+/** The dashboard this device opens Home Assistant on: Home Assistant's own default, or one of the house's. */
+function deviceHome(ctx: PanelContext): TemplateResult {
+  const home = ctx.deviceEdit.home ?? ctx.device.home;
+  const wallFirst = ctx.shown.wall.dashboards[0];
+  const options = homeOptions(
+    ctx,
+    wallFirst ? ctx.t('wall.home_wall', { name: wallFirst }) : undefined,
+  );
   return html`<p class="fv-label pn-label">${ctx.t('wall.home')}</p>
     <fluvy-select
       .label=${ctx.t('wall.home')}

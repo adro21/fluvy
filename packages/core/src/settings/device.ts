@@ -1,4 +1,5 @@
 import { readStored, writeStored } from '../storage.js';
+import type { DeviceHomes, DeviceKind } from './schema.js';
 
 /*
  * What this browser is: a wall panel, or not, and the size it reads its dashboards at. The house says how its walls
@@ -54,17 +55,34 @@ export function parseDevice(raw: unknown): DeviceSettings {
 const isUrlPath = (value: unknown): value is string =>
   typeof value === 'string' && value !== '' && !value.includes('/');
 
+/** What kind of device this is: a tablet, a phone (touch and no mouse, but narrower), else a computer. */
+export function deviceKind(win: ScreenLike | undefined = globalWindow()): DeviceKind {
+  if (isTablet(win)) return 'tablet';
+  if (
+    win &&
+    typeof win.matchMedia === 'function' &&
+    win.matchMedia('(hover: none) and (pointer: coarse)').matches
+  )
+    return 'phone';
+  return 'computer';
+}
+
 /**
  * The dashboard this device opens Home Assistant on: its own choice; else, as a wall, the house's first wall
- * dashboard; else '' — Home Assistant's own default. The loader carries the same rule, before the app routes.
+ * dashboard; else what the house says for its kind of device; else '' — Home Assistant's own default. The house's
+ * word travels with the house, so a phone opens the same way on every address it reaches the house by. The
+ * loader carries the same rule, before the app routes.
  */
 export function deviceHome(
   device: Pick<DeviceSettings, 'home'>,
   wall: boolean,
   wallDashboards: readonly string[],
+  homes?: DeviceHomes,
+  kind: DeviceKind = deviceKind(),
 ): string {
   if (device.home) return device.home;
-  return wall ? (wallDashboards[0] ?? '') : '';
+  if (wall && wallDashboards[0]) return wallDashboards[0];
+  return homes?.[kind] ?? '';
 }
 
 export const readDevice = (): DeviceSettings => parseDevice(readStored<unknown>(DEVICE_KEY));

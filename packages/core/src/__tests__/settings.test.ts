@@ -94,6 +94,7 @@ describe('parsing stored settings', () => {
         nightDim: 40,
         background: 'wall',
         exit: 'hold',
+        homes: { phone: 'fluvy-mobile', tablet: 7, computer: '/fluvy-auto/home' },
       }),
     ).toEqual({
       devices: 'tablets',
@@ -108,6 +109,7 @@ describe('parsing stored settings', () => {
       nightDim: 40,
       background: 'wall',
       exit: 'hold',
+      homes: { phone: 'fluvy-mobile', tablet: '', computer: '' },
     });
     expect(
       parseWall({

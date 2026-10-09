@@ -82,7 +82,14 @@ export interface WallSettings {
   readonly background: 'plain' | 'wall';
   /** How a person leaves the wall on the device. */
   readonly exit: WallExit;
+  /** The dashboard (url path) each kind of device opens Home Assistant on; '' leaves it to Home Assistant. */
+  readonly homes: DeviceHomes;
 }
+
+/** A kind of device: a tablet (`isTablet`), a phone (touch, narrower), or a computer (a mouse). */
+export type DeviceKind = 'phone' | 'tablet' | 'computer';
+export type DeviceHomes = Readonly<Record<DeviceKind, string>>;
+export const DEVICE_KINDS: readonly DeviceKind[] = ['phone', 'tablet', 'computer'];
 
 /** What the house decides (an admin). */
 export interface HouseSettings {
@@ -172,6 +179,7 @@ export const HOUSE_DEFAULTS: HouseSettings = {
     nightDim: 0,
     background: 'plain',
     exit: 'button',
+    homes: { phone: '', tablet: '', computer: '' },
   },
 };
 export const WALL_DEFAULTS: WallSettings = HOUSE_DEFAULTS.wall;
@@ -234,6 +242,20 @@ export function parseWall(raw: unknown): WallSettings {
       ? value['background']
       : d.background,
     exit: oneOf(value['exit'], ['button', 'hold'] as const) ? value['exit'] : d.exit,
+    homes: parseHomes(value['homes']),
+  };
+}
+
+/** A dashboard's url path: one segment, no slash; anything else is '' (Home Assistant's own default). */
+const urlPathOrNone = (value: unknown): string =>
+  typeof value === 'string' && value !== '' && !value.includes('/') ? value : '';
+
+function parseHomes(raw: unknown): DeviceHomes {
+  const value = isRecord(raw) ? raw : {};
+  return {
+    phone: urlPathOrNone(value['phone']),
+    tablet: urlPathOrNone(value['tablet']),
+    computer: urlPathOrNone(value['computer']),
   };
 }
 

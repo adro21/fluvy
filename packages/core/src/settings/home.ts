@@ -83,7 +83,12 @@ export function startHome(options: HomeStartOptions): void {
     }
     const settings = options.look?.settings() ?? cachedSettings();
     const wall = wallDevice(settings?.wall.devices);
-    const home = deviceHome(readDevice(), wall, settings?.wall.dashboards ?? []);
+    const home = deviceHome(
+      readDevice(),
+      wall,
+      settings?.wall.dashboards ?? [],
+      settings?.wall.homes,
+    );
     const to = homeRedirect({ pathname: location.pathname, defaultPanel, home });
     if (to && app.panels[home]) navigate(to, true);
   };

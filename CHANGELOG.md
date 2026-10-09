@@ -5,6 +5,13 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Where devices open, by kind.** *Where devices open* in the panel's *Wall* tab: phones, tablets and computers
+  each open Home Assistant on a dashboard of the house's choosing. The choice travels with the house, so a phone
+  opens the same way on every address it reaches the house by — a device's own *Opens on* only lives in the
+  browser of the address it was made on. A device's own choice, and a wall's first wall dashboard, still win.
+
 ## [1.5.19] — 2026-10-09
 
 ### Fixed

@@ -4,6 +4,7 @@ import {
   DEVICE_KEY,
   DEVICE_ZOOMS,
   deviceHome,
+  deviceKind,
   latchFromUrl,
   isTablet,
   latchZoomFromUrl,
@@ -49,6 +50,17 @@ describe('what this device is', () => {
     expect(deviceHome({ home: '' }, true, ['fluvy-wall', 'fluvy-auto'])).toBe('fluvy-wall');
     expect(deviceHome({ home: '' }, true, [])).toBe('');
     expect(deviceHome({ home: '' }, false, ['fluvy-wall'])).toBe('');
+    // the house's word for the kind of device, on every address; the device's own and a wall's first still win
+    const homes = { phone: 'fluvy-mobile', tablet: 'fluvy-wall', computer: 'fluvy-auto' };
+    expect(deviceHome({ home: '' }, false, [], homes, 'phone')).toBe('fluvy-mobile');
+    expect(deviceHome({ home: '' }, false, [], homes, 'computer')).toBe('fluvy-auto');
+    expect(deviceHome({ home: '' }, true, ['fluvy-test'], homes, 'tablet')).toBe('fluvy-test');
+    expect(deviceHome({ home: 'fluvy-auto' }, false, [], homes, 'phone')).toBe('fluvy-auto');
+    expect(deviceHome({ home: '' }, false, [], { ...homes, phone: '' }, 'phone')).toBe('');
+    expect(deviceKind(windowOf('tablet'))).toBe('tablet');
+    expect(deviceKind(windowOf('phone'))).toBe('phone');
+    expect(deviceKind(windowOf('computer'))).toBe('computer');
+    expect(deviceKind(undefined)).toBe('computer');
   });
 
   it('knows a tablet: a touch screen with no mouse, 600 or more on its shorter side', () => {

@@ -314,6 +314,7 @@ export function changeTitle(
 /** The wall's settings by the label the Wall tab gives them (the hours share the day-and-night line). */
 const WALL_LABELS: ReadonlyArray<readonly [keyof WallSettings, StringKey]> = [
   ['dashboards', 'wall.dashboards'],
+  ['homes', 'wall.homes'],
   ['after', 'wall.after'],
   ['clock', 'wall.clock'],
   ['dim', 'wall.dim'],
