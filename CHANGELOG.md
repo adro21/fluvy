@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The sideways-scroll diagnostic says more**: which container holds the extra width and what sits in it, and
+  which of the things a view change does (laying the header out again, nudging the tab strip, the page, the
+  view) makes the page fit.
+
 ## [1.5.10] — 2026-10-09
 
 ### Fixed

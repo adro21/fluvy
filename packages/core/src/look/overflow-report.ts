@@ -18,6 +18,13 @@ export interface OverflowReport {
   readonly wide: readonly string[];
   /** The ancestors of the first of them, outermost first. */
   readonly path: readonly string[];
+  /** Every element whose scrollable width exceeds the window — margins, pseudo-elements and transforms count. */
+  readonly holders: readonly string[];
+  /** The deepest holder's ancestors, outermost first. */
+  readonly holderPath: readonly string[];
+  /** The deepest holder's children: box, margins, transform. */
+  readonly inside: readonly string[];
+  readonly scrollX: number;
 }
 
 const LIMIT = 25_000;
@@ -74,12 +81,49 @@ export function measureOverflow(doc: Document, win: Window): OverflowReport | nu
   if (!pageWide && !viewWide) return null;
   wide.sort((a, b) => b.right - a.right);
   const first = wide[0];
+  // the containers that hold the width: their scrollable width counts what a box's rect does not
+  const holding: Element[] = [];
+  for (const el of elements(doc, { left: LIMIT }))
+    if (
+      el.scrollWidth > innerWidth + 2 &&
+      !(
+        el.scrollWidth > el.clientWidth + 2 &&
+        /^(auto|scroll)$/.test(win.getComputedStyle(el).overflowX)
+      )
+    )
+      holding.push(el);
+  const deepest = holding.reduce<Element | undefined>(
+    (best, el) => (!best || ancestors(el).length >= ancestors(best).length ? el : best),
+    undefined,
+  );
+  const inside: string[] = [];
+  if (deepest) {
+    const children = [...(deepest.shadowRoot?.children ?? []), ...deepest.children];
+    for (const child of children.slice(0, 20)) {
+      const rect = child.getBoundingClientRect();
+      const style = win.getComputedStyle(child);
+      inside.push(
+        `${name(child)} ${Math.round(rect.left)}..${Math.round(rect.right)} (${Math.round(rect.width)}) sw${child.scrollWidth} m${style.marginLeft}/${style.marginRight} p${style.paddingRight} ${style.position}${style.transform !== 'none' ? ` t${style.transform}` : ''}${style.display === 'none' ? ' none' : ''}`,
+      );
+    }
+    for (const which of ['::before', '::after'] as const) {
+      const style = win.getComputedStyle(deepest, which);
+      if (style.content && style.content !== 'none' && style.content !== 'normal')
+        inside.push(
+          `${which} ${style.content.slice(0, 40)} w${style.width} m${style.marginLeft}/${style.marginRight} ${style.display}`,
+        );
+    }
+  }
   return {
     innerWidth,
     pageWidth,
     scrollers: scrollers.slice(0, 8),
     wide: wide.slice(0, 14).map((w) => w.text),
     path: first ? ancestors(first.el) : [],
+    holders: holding.slice(0, 12).map((el) => `${name(el)} ${el.clientWidth}/${el.scrollWidth}`),
+    holderPath: deepest ? ancestors(deepest) : [],
+    inside,
+    scrollX: Math.round(win.scrollX),
   };
 }
 
@@ -87,11 +131,86 @@ export function measureOverflow(doc: Document, win: Window): OverflowReport | nu
 export function formatOverflow(report: OverflowReport | null, agent: string): string {
   if (!report) return `ok: the page fits (${agent})`;
   return [
-    `wider than the screen: page ${report.pageWidth} in a window of ${report.innerWidth} (${agent})`,
+    `wider than the screen: page ${report.pageWidth} in a window of ${report.innerWidth}, scrolled ${report.scrollX} (${agent})`,
     `scrollers: ${report.scrollers.join(' | ') || 'none'}`,
     `wide: ${report.wide.join(' | ') || 'none'}`,
     `path: ${report.path.join(' > ')}`,
+    `holders: ${report.holders.join(' | ') || 'none'}`,
+    `deepest: ${report.holderPath.join(' > ') || 'none'}`,
+    `inside: ${report.inside.join(' | ') || 'none'}`,
   ].join('\n');
+}
+
+/** Finds an element by tag through the shadow roots. */
+const find = (doc: Document, tag: string, cls?: string): Element | undefined => {
+  for (const el of elements(doc, { left: LIMIT }))
+    if (el.tagName.toLowerCase() === tag && (!cls || el.classList.contains(cls))) return el;
+  return undefined;
+};
+
+/**
+ * What a view change does, one piece at a time, each measured and undone: the first that makes the page fit
+ * says where the width is held. `reflow-header` lays the fixed header out again; `nav-scroll` moves the tab
+ * strip by a pixel and back; `page-scroll` the window; `reflow-view` the view; `html-clip` clips the root.
+ */
+export function tryNudges(doc: Document, win: Window): string[] {
+  const width = (): number => doc.scrollingElement?.scrollWidth ?? 0;
+  const fits = (): boolean => width() <= win.innerWidth + 2;
+  const html = doc.documentElement;
+  const header = find(doc, 'div', 'header');
+  const nav = find(doc, 'div', 'nav');
+  const view = find(doc, 'hui-view');
+  const reflow = (el: Element | undefined): void => {
+    if (!(el instanceof HTMLElement)) return;
+    const was = el.style.display;
+    el.style.display = 'none';
+    void el.offsetHeight;
+    el.style.display = was;
+    void el.offsetHeight;
+  };
+  const steps: Array<[string, () => void]> = [
+    ['reflow-header', () => reflow(header)],
+    [
+      'nav-scroll',
+      () => {
+        if (!nav) return;
+        nav.scrollLeft += 1;
+        void nav.scrollWidth;
+        nav.scrollLeft -= 1;
+      },
+    ],
+    [
+      'page-scroll',
+      () => {
+        win.scrollTo(1, win.scrollY);
+        win.scrollTo(0, win.scrollY);
+      },
+    ],
+    ['reflow-view', () => reflow(view)],
+    [
+      'html-clip',
+      () => {
+        html.style.overflowX = 'clip';
+        void html.offsetWidth;
+        html.style.overflowX = '';
+      },
+    ],
+  ];
+  const out: string[] = [];
+  for (const [label, run] of steps) {
+    if (fits()) {
+      out.push(`${label}: already fits`);
+      break;
+    }
+    try {
+      run();
+    } catch {
+      out.push(`${label}: failed`);
+      continue;
+    }
+    out.push(`${label} → ${width()}${fits() ? ' fits' : ''}`);
+  }
+  return out;
 }
 
 /** Writes to Home Assistant's log through the page's connection; nothing when the page has none yet. */
@@ -115,7 +234,9 @@ export function startOverflowReport(win: Window = window): () => void {
   let timers: number[] = [];
   const check = (): void => {
     const agent = win.navigator.userAgent.slice(0, 120);
-    void write(doc, formatOverflow(measureOverflow(doc, win), agent));
+    const report = measureOverflow(doc, win);
+    const text = formatOverflow(report, agent);
+    void write(doc, report ? `${text}\nnudges: ${tryNudges(doc, win).join(' | ')}` : text);
   };
   const schedule = (): void => {
     for (const t of timers) win.clearTimeout(t);

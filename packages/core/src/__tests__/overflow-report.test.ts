@@ -28,8 +28,18 @@ describe('the overflow report', () => {
     expect(report.wide[0]).toBe('p.x.y 10..910 (900)');
     expect(report.wide[1]).toBe('span#b 0..500 (500)');
     expect(report.path).toEqual(['html', 'body', 'div#a', 'p.x.y']);
+    // the holder: the container whose scrollable width carries the page out, with its children laid bare
+    Object.defineProperty(document.getElementById('a')!, 'scrollWidth', {
+      get: () => 910,
+      configurable: true,
+    });
+    const held = measureOverflow(document, window)!;
+    expect(held.holders).toContain('div#a 0/910');
+    expect(held.holderPath).toEqual(['html', 'body', 'div#a']);
+    expect(held.inside[0]).toMatch(/^p\.x\.y 10\.\.910 \(900\)/);
+    expect(formatOverflow(held, 'iPhone')).toContain('deepest: html > body > div#a');
     const text = formatOverflow(report, 'iPhone');
-    expect(text).toContain('page 910 in a window of 390 (iPhone)');
+    expect(text).toContain('page 910 in a window of 390, scrolled 0 (iPhone)');
     expect(text).toContain('path: html > body > div#a > p.x.y');
   });
 });
