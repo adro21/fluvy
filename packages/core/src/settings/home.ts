@@ -2,7 +2,6 @@ import { navigate } from '../actions.js';
 import type { HomeAssistant } from '../ha/types.js';
 import type { LookHandle } from '../look/start.js';
 import { appHass } from '../look/start.js';
-import { urlPathOf } from '../wall/on.js';
 import { deviceHome, readDevice, wallDevice } from './device.js';
 import { cachedSettings } from './store.js';
 
@@ -22,6 +21,10 @@ export interface HomeRedirectInput {
   /** The device's dashboard (`deviceHome`); '' none. */
   readonly home: string;
 }
+
+/** The dashboard a location is on (`/fluvy-auto/home` → `fluvy-auto`); the wall's `urlPathOf`, kept apart so this
+ * file pulls nothing of the wall's into what every page loads. */
+const urlPathOf = (pathname: string): string | undefined => pathname.split('/')[1] || undefined;
 
 /** Where a page just loaded should go, or nothing. */
 export function homeRedirect(input: HomeRedirectInput): string | undefined {
