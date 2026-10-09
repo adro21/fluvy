@@ -10,7 +10,14 @@ import {
 
 import { glyph, head, round, sheetStyles } from '@fluvy/ui';
 
-import { css, html, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit';
+import {
+  css,
+  html,
+  nothing,
+  type CSSResultGroup,
+  type PropertyValues,
+  type TemplateResult,
+} from 'lit';
 
 import { ROW_KEYS, RowsCard, rowSchema, type RowsCardConfig } from '../lock/rows.js';
 
@@ -28,9 +35,10 @@ import {
   fieldRow,
   nameIconFields,
   numberField,
+  selectField,
   textField,
 } from '../shared/form.js';
-import type { RowsListSpec } from '../shared/rows-editor.js';
+import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { configKeys, ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
 import { toneOf } from '../shared/colour.js';
 import { Crossfade } from '../shared/crossfade.js';
@@ -38,7 +46,16 @@ import { listLength, ROW } from '../shared/heights.js';
 
 const s = strings('camera');
 
+export type CameraVariant = 'full' | 'compact';
+const VARIANTS: readonly CameraVariant[] = ['full', 'compact'];
+
 export interface CameraCardConfig extends RowsCardConfig {
+  /**
+   * `full` (default): the head, the 16:9 picture with its pills and overlay buttons, the rows. `compact`: the
+   * picture alone, edge to edge, the name and the live dot in one pill; no head, no buttons, no rows — a
+   * thumbnail that may sit a third of a section wide.
+   */
+  variant?: CameraVariant;
   /** Seconds between two stills (1–300, default 10). */
   refresh?: number;
   /** Second line of the head ("Front of house · 1080p"). Default: area and state. */
@@ -59,6 +76,7 @@ const GIVE_UP = 3;
 export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */
   static override layoutHeight(config: CameraCardConfig): number {
+    if (config.variant === 'compact') return Math.round((360 * 9) / 16 / 4) * 4; // the picture alone
     const rows = config.show_rows === false ? 0 : listLength(config, ['rows']);
     return 280 + (rows ? 16 + ROW * rows : 0);
   }
@@ -140,6 +158,45 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      /* compact: the picture is the card — no padding, the card's radius on the plate */
+      .dv-card--compact {
+        padding: 0;
+        overflow: hidden;
+      }
+      .dv-card--compact .dv-cam {
+        margin-top: 0;
+        border-radius: var(--fluvy-radius-card);
+      }
+      .dv-card--compact .dv-cam__tap {
+        border-radius: var(--fluvy-radius-card);
+      }
+      /* the name pill: bottom left, the live dot before the name, never wider than the picture */
+      .dv-cam__name {
+        top: auto;
+        bottom: 12px;
+        left: 12px;
+        max-width: calc(100% - 24px);
+        z-index: 4;
+        pointer-events: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dv-cam__name i {
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--fluvy-danger);
+        transition: opacity var(--fv-base) var(--fv-ease);
+      }
+      .dv-cam__name.is-stale i {
+        opacity: 0;
+      }
+      /* the off skin in a thumbnail: the glyph alone */
+      .dv-card--compact .dv-cam__off p {
+        display: none;
+      }
       .dv-cam:fullscreen {
         border-radius: 0;
         background: var(--fluvy-neutral-05);
@@ -197,6 +254,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   }
 
   static override keys = configKeys<CameraCardConfig>()([
+    'variant',
     'rows',
     'show_rows',
     'refresh',
@@ -205,6 +263,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   static override lists: readonly RowsListSpec[] = [
     { key: 'rows', title: 'editor.rows', keys: ROW_KEYS, schema: rowSchema() },
   ];
+  static override defaults: EditorDefaults = () => ({ variant: 'full' });
   static override aliases: AliasSpec = {
     keys: [{ from: 'sub', to: 'subtitle' }],
     items: { rows: ITEM_ALIASES },
@@ -214,6 +273,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       schema: [
         entityField(['camera']),
         nameIconFields(),
+        selectField('variant', VARIANTS),
         fieldRow(textField('subtitle'), numberField('refresh', 1, 300)),
         boolField('show_rows'),
         entitiesField('rows'),
@@ -239,11 +299,15 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
     });
   }
 
+  private get compact(): boolean {
+    return this.config?.variant === 'compact';
+  }
+
   override getCardSize(): number {
-    return 5 + this.rowCount;
+    return this.compact ? 3 : 5 + this.rowCount;
   }
   override getGridOptions(): LovelaceGridOptions {
-    return { columns: 12, rows: 'auto', min_columns: 6 };
+    return { columns: 12, rows: 'auto', min_columns: this.compact ? 4 : 6 };
   }
 
   /* ---------- the refresh loop ---------- */
@@ -375,32 +439,39 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
 
     const unusable = view.status !== 'ok';
     const off = unusable || this.failed_ || !view.attr<string | null>('entity_picture');
-    const height = Math.round((this.contentWidth * 9) / 16 / 4) * 4; // 16:9, landed on the 4 px grid
-    const offTop = Math.max(0, Math.round((height - 76) / 2 / 4) * 4);
+    const compact = this.compact;
+    const width = compact ? this.width : this.contentWidth; // compact: the picture bleeds to the card's edges
+    const height = Math.round((width * 9) / 16 / 4) * 4; // 16:9, landed on the 4 px grid
+    const offH = compact ? 24 : 76; // the off skin: the glyph alone in a thumbnail
+    const offTop = Math.max(0, Math.round((height - offH) / 2 / 4) * 4);
     const sub =
       this.config?.subtitle ??
       [view.areaName, stateText(this.hass, view)].filter(Boolean).join(' · ');
 
     return html`<article
-      class="fv-card dv-card ${isUsable(view) ? '' : 'is-unavailable'}"
+      class="fv-card dv-card ${compact ? 'dv-card--compact' : ''} ${isUsable(view) ? '' : 'is-unavailable'}"
       data-card
     >
-      ${head({
-        icon: this.config?.icon ?? glyphFor(view),
-        tone: isUsable(view) ? toneOf(this.config, 'accent') : 'off',
-        title: name,
-        name: true,
-        sub,
-        trailing: round('dots', 'quiet', this.t('common.more'), () => this.moreInfo()),
-        onIconTap: () => this.tap(view.id),
-        onHold: () => this.hold(view.id),
-        iconLabel: name,
-      })}
+      ${
+        compact
+          ? nothing
+          : head({
+              icon: this.config?.icon ?? glyphFor(view),
+              tone: isUsable(view) ? toneOf(this.config, 'accent') : 'off',
+              title: name,
+              name: true,
+              sub,
+              trailing: round('dots', 'quiet', this.t('common.more'), () => this.moreInfo()),
+              onIconTap: () => this.tap(view.id),
+              onHold: () => this.hold(view.id),
+              iconLabel: name,
+            })
+      }
       <div class="dv-cam fv-plate ${off ? 'is-off' : ''}" style="height:${height}px">
         ${this.frames.render()}
         ${
           off
-            ? html`<div class="dv-cam__off" style="top:${offTop}px;height:76px">
+            ? html`<div class="dv-cam__off" style="top:${offTop}px;height:${offH}px">
                 <span class="fv-ico fv-ico--off" data-icon>${glyph('camera')}</span>
                 <p>${unusable ? stateText(this.hass, view) : s(this.hass, 'offline')}</p>
               </div>`
@@ -413,17 +484,32 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
                     aria-label=${s(this.hass, 'view', { name })}
                     @click=${() => this.moreInfo()}
                   ></button>
-                  <span class="dv-cam__pill dv-cam__live ${this.stale_ ? 'is-stale' : ''}"
-                    ><i></i>${s(this.hass, 'live')}</span
-                  >
-                  <span class="dv-cam__pill dv-cam__time">${this.clock()}</span>
-                  <div class="dv-cam__actions">
-                    ${round('snapshot', 'quiet', s(this.hass, 'snapshot'), () => this.moreInfo())}
-                    ${round('expand', 'quiet', s(this.hass, 'fullscreen'), () => this.fullscreen())}
-                  </div>`
+                  ${
+                    compact
+                      ? nothing
+                      : html`<span
+                            class="dv-cam__pill dv-cam__live ${this.stale_ ? 'is-stale' : ''}"
+                            ><i></i>${s(this.hass, 'live')}</span
+                          >
+                          <span class="dv-cam__pill dv-cam__time">${this.clock()}</span>
+                          <div class="dv-cam__actions">
+                            ${round('snapshot', 'quiet', s(this.hass, 'snapshot'), () => this.moreInfo())}
+                            ${round('expand', 'quiet', s(this.hass, 'fullscreen'), () =>
+                              this.fullscreen(),
+                            )}
+                          </div>`
+                  }`
+        }
+        ${
+          compact
+            ? html`<span
+                class="dv-cam__pill dv-cam__name ${this.stale_ || !this.stamp_ ? 'is-stale' : ''}"
+                ><i></i>${name}</span
+              >`
+            : nothing
         }
       </div>
-      ${this.renderRows(true)}
+      ${compact ? nothing : this.renderRows(true)}
     </article>`;
   }
 }
