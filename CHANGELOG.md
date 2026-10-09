@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.10] — 2026-10-09
+
 ### Fixed
 
 - **A dashboard no longer scrolls sideways on an iPhone** when it opens: the header's row of view tabs is clipped at
