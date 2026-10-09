@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.19] — 2026-10-09
+
 ### Fixed
 
 - **A device's own dashboard now holds at launch on Home Assistant 2025.12 and later.** The default dashboard is
