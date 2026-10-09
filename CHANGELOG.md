@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.16] — 2026-10-09
+
 ### Added
 
 - **Tablets become walls on their own.** *Which devices are walls* in the panel's *Wall* tab: *Every tablet* makes any
