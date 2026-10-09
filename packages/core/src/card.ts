@@ -138,6 +138,8 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
   declare layout?: string;
 
   private resizeObserver: ResizeObserver | undefined;
+  /** The observer has reported a width: what the card draws is drawn to its box, not to the 360 it assumed. */
+  private measured = false;
   /** The card's own colour and its items', derived on the palette the card wears. */
   protected readonly accents = new AccentSheet();
 
@@ -177,11 +179,22 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
     ensureFonts();
     this.style.setProperty('--fv-enter-delay', `${nextEnterDelay()}ms`);
     if ((this.constructor as typeof FluvyCard).still) this.setAttribute('still', '');
+    // Until the first measurement the card is clipped at its box. What it draws for the 360 it assumes (a ruler
+    // 320 wide in a tile of 189) is laid out before the observer reports; WebKit keeps that first layout's
+    // overflow as the section's scrollable width after the redraw, and an iPhone's dashboard scrolled sideways
+    // until a view was re-entered. Clipped, the first layout holds nothing past the box; measured and redrawn
+    // (`updated`), the clip goes.
+    if (!this.measured) this.style.overflow = 'clip';
     this.resizeObserver = new ResizeObserver((entries) => {
       const box = entries[0]?.contentRect;
       if (!box) return;
       const next = Math.round(box.width);
-      if (next > 0 && next !== this.width) this.width = next;
+      if (next <= 0) return;
+      if (!this.measured) {
+        this.measured = true;
+        this.requestUpdate();
+      }
+      if (next !== this.width) this.width = next;
     });
     this.resizeObserver.observe(this);
     if (this.renderRoot instanceof ShadowRoot) this.accents.adopt(this.renderRoot);
@@ -267,6 +280,7 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
     super.updated(changed);
     this.accents.host(this.config?.color);
     this.accents.commit();
+    if (this.measured && this.style.overflow === 'clip') this.style.overflow = '';
   }
 
   /* ---------- optimistic state ---------- */

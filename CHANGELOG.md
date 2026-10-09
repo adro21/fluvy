@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A dashboard no longer scrolls sideways on an iPhone when it opens.** A card draws its controls to the width
+  it assumes before its first measurement, and WebKit kept that first layout's overflow as the section's width
+  after the redraw — a tile's ruler 320 wide in a tile of 189 held the page 147 px past the screen until a view
+  was re-entered. A card is now clipped at its box until it has measured, so the first layout holds nothing
+  past it.
+
 ## [1.5.11] — 2026-10-09
 
 ### Changed
