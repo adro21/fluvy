@@ -5,6 +5,13 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The 1.5.8 width re-read is taken back out**: it did not cure the sideways scroll on an iPhone.
+- **A diagnostic for that scroll**: a few seconds after a page loads or moves, Fluvy writes to Home Assistant's
+  own log (logger `fluvy.overflow`, under *Settings → System → Logs*) whether the page fits the screen and, when it
+  does not, which elements reach past it. Nothing leaves the house; the line goes once the cause is found.
+
 ## [1.5.8] — 2026-10-09
 
 ### Fixed
