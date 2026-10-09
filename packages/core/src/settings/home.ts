@@ -42,7 +42,32 @@ export interface HomeStartOptions {
   hass?(): HomeAssistant | undefined;
 }
 
-type WithDefault = HomeAssistant & { readonly defaultPanel?: string };
+/** What the app carries of the default dashboard (Home Assistant 2025.12+: per user, then for everyone). */
+type WithDefault = HomeAssistant & {
+  readonly userData?: { readonly default_panel?: string };
+  readonly systemData?: { readonly default_panel?: string };
+};
+
+/**
+ * Home Assistant's default dashboard, resolved as its own frontend does: this user's, then everyone's, then the
+ * browser's older memory, then `home`; `lovelace` without a configuration is `home` too. Undefined until the app
+ * has its system data.
+ */
+export function defaultPanelOf(
+  app: Pick<WithDefault, 'userData' | 'systemData' | 'panels'>,
+  storage: Pick<Storage, 'getItem'> | undefined,
+): string | undefined {
+  if (app.systemData === undefined) return undefined;
+  let stored: string | undefined;
+  try {
+    const raw = storage?.getItem('defaultPanel');
+    stored = raw ? (JSON.parse(raw) as string) : undefined;
+  } catch {
+    stored = undefined;
+  }
+  const panel = app.userData?.default_panel || app.systemData.default_panel || stored || 'home';
+  return panel === 'lovelace' && !app.panels?.['lovelace']?.config ? 'home' : panel;
+}
 
 /** Once per page load: sends the page to the device's dashboard when it opened at the root or on the default. */
 export function startHome(options: HomeStartOptions): void {
@@ -50,15 +75,24 @@ export function startHome(options: HomeStartOptions): void {
   let tries = 0;
   const attempt = (): void => {
     const app = hass() as WithDefault | undefined;
-    if (!app?.panels || app.defaultPanel === undefined) {
-      if (tries++ < 100) setTimeout(attempt, 100); // the app fills its panels and default as it connects
+    const defaultPanel = app?.panels ? defaultPanelOf(app, safeLocalStorage()) : undefined;
+    if (!app?.panels || defaultPanel === undefined) {
+      if (tries++ < 100) setTimeout(attempt, 100); // the app fills its panels and its data as it connects
       return;
     }
     const settings = options.look?.settings() ?? cachedSettings();
     const wall = wallDevice(settings?.wall.devices);
     const home = deviceHome(readDevice(), wall, settings?.wall.dashboards ?? []);
-    const to = homeRedirect({ pathname: location.pathname, defaultPanel: app.defaultPanel, home });
+    const to = homeRedirect({ pathname: location.pathname, defaultPanel, home });
     if (to && app.panels[home]) navigate(to, true);
   };
   attempt();
 }
+
+const safeLocalStorage = (): Storage | undefined => {
+  try {
+    return localStorage;
+  } catch {
+    return undefined;
+  }
+};

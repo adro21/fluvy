@@ -1,5 +1,46 @@
 import { describe, expect, it } from 'vitest';
-import { homeRedirect } from '../settings/home.js';
+import { defaultPanelOf, homeRedirect } from '../settings/home.js';
+
+describe('Home Assistant’s default dashboard, as its frontend resolves it', () => {
+  const panels = {
+    lovelace: { component_name: 'lovelace' },
+    'fluvy-auto': { component_name: 'lovelace' },
+  };
+  const storage = (value: string | null) => ({ getItem: () => value });
+  it('is this user’s, then everyone’s, then the browser’s memory, then home; and waits for the app’s data', () => {
+    expect(defaultPanelOf({ panels, userData: {}, systemData: {} }, storage(null))).toBe('home');
+    expect(
+      defaultPanelOf(
+        { panels, userData: {}, systemData: { default_panel: 'fluvy-auto' } },
+        storage(null),
+      ),
+    ).toBe('fluvy-auto');
+    expect(
+      defaultPanelOf(
+        {
+          panels,
+          userData: { default_panel: 'fluvy-mobile' },
+          systemData: { default_panel: 'fluvy-auto' },
+        },
+        storage(null),
+      ),
+    ).toBe('fluvy-mobile');
+    expect(defaultPanelOf({ panels, userData: {}, systemData: {} }, storage('"fluvy-wall"'))).toBe(
+      'fluvy-wall',
+    );
+    expect(defaultPanelOf({ panels, userData: {}, systemData: {} }, storage('nonsense'))).toBe(
+      'home',
+    );
+    // the Overview without a configuration is the new Home
+    expect(
+      defaultPanelOf(
+        { panels, userData: {}, systemData: { default_panel: 'lovelace' } },
+        storage(null),
+      ),
+    ).toBe('home');
+    expect(defaultPanelOf({ panels, userData: {} }, storage(null))).toBeUndefined();
+  });
+});
 
 describe('the dashboard a device opens on', () => {
   it('sends the root and the default dashboard to the device’s own, and nothing else', () => {

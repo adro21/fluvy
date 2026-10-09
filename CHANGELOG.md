@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A device's own dashboard now holds at launch on Home Assistant 2025.12 and later.** The default dashboard is
+  read where that frontend keeps it (this user's, then everyone's), not where older releases did; 1.5.18 waited
+  for the old place and so never acted.
+
 ## [1.5.18] — 2026-10-09
 
 ### Fixed
