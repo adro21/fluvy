@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.9] — 2026-10-09
+
 ### Changed
 
 - **The 1.5.8 width re-read is taken back out**: it did not cure the sideways scroll on an iPhone.
