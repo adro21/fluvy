@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.8] — 2026-10-09
+
 ### Fixed
 
 - **A dashboard no longer scrolls sideways on an iPhone** after it opens or is returned to from another one. A

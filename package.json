@@ -1,6 +1,6 @@
 {
   "name": "fluvy",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "private": true,
   "description": "A calm theme and card library for Home Assistant: a generated light and dark theme, forty-nine cards, five automatic dashboards and a settings panel, installed through HACS",
   "license": "GPL-3.0-only",
