@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.12] — 2026-10-09
+
 ### Fixed
 
 - **A dashboard no longer scrolls sideways on an iPhone when it opens.** A card draws its controls to the width
