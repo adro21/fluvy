@@ -492,7 +492,10 @@ describe('the settings panel', () => {
     });
     panel.tab = 'wall';
     await settle();
-    const select = root.querySelector('fluvy-select') as HTMLElement & {
+    // the second dropdown of the tab: the device's "Opens on" comes first
+    const select = [...root.querySelectorAll('fluvy-select')].find(
+      (s) => (s as HTMLElement & { label: string }).label === 'Wake on motion',
+    ) as HTMLElement & {
       value: string;
       options: readonly { value: string; label: string; hint?: string }[];
     };

@@ -1219,7 +1219,7 @@ export function wall(ctx: PanelContext): TemplateResult {
         ],
         (key) => ctx.editDevice({ wall: key === 'auto' ? null : key === 'on' }),
       )}
-      ${deviceSize(ctx)}
+      ${deviceSize(ctx)} ${deviceHome(ctx)}
       <p class="fv-label pn-label">${ctx.t('wall.address')}</p>
       <div class="pn-address">
         <span class="pn-address__url" data-name>${address}</span>
@@ -1437,6 +1437,31 @@ function deviceSize(ctx: PanelContext): TemplateResult {
       // five sizes on one line where the column holds them ("100 %" + the pill's sides), else three over two
       ctx.wide ? 5 : 3,
     )}`;
+}
+
+/** The dashboard this device opens Home Assistant on: Home Assistant's own default, or one of the house's. */
+function deviceHome(ctx: PanelContext): TemplateResult {
+  const home = ctx.deviceEdit.home ?? ctx.device.home;
+  const wallFirst = ctx.shown.wall.dashboards[0];
+  const options: SelectOption[] = [
+    {
+      value: 'house',
+      label: ctx.t('wall.home_house'),
+      ...(wallFirst ? { hint: ctx.t('wall.home_wall', { name: wallFirst }) } : {}),
+    },
+    ...ctx.dashboards
+      .filter((d) => d.urlPath !== 'fluvy')
+      .map((d) => ({ value: d.urlPath, label: d.title, hint: `/${d.urlPath}` })),
+  ];
+  return html`<p class="fv-label pn-label">${ctx.t('wall.home')}</p>
+    <fluvy-select
+      .label=${ctx.t('wall.home')}
+      .value=${home || 'house'}
+      .options=${options}
+      @fluvy-change=${(event: CustomEvent<SelectChangeDetail>) =>
+        ctx.editDevice({ home: event.detail.value === 'house' ? '' : event.detail.value })}
+    ></fluvy-select>
+    <p class="pn-hint pn-hint--after">${ctx.t('wall.home_sub')}</p>`;
 }
 
 /* ---------- preferences ---------- */

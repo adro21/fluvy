@@ -42,17 +42,25 @@ try {
 const ZOOMS = [90, 100, 110, 125, 150];
 try {
   const device = JSON.parse(localStorage.getItem('fluvy:device') ?? 'null');
+  const cache = JSON.parse(localStorage.getItem('fluvy:settings') ?? 'null');
   // a device that made no choice is a wall when the house makes tablets walls and this is one: a touch screen
   // with no mouse, 600 or more on its shorter side (`isTablet` in core's settings/device.ts, the same rule)
   let wall = device ? device.wall === true : false;
   if (!device || device.wall == null) {
-    const cache = JSON.parse(localStorage.getItem('fluvy:settings') ?? 'null');
     wall =
       cache?.house?.wall?.devices === 'tablets' &&
       window.matchMedia('(hover: none) and (pointer: coarse)').matches &&
       Math.min(window.screen.width, window.screen.height) >= 600;
   }
   if (wall) document.documentElement.setAttribute('fluvy-wall', '');
+  // the dashboard this device opens on (`deviceHome` in core's settings/device.ts, the same rule): its own
+  // choice, else a wall's first wall dashboard. Only an app opened at its root is sent there — before it routes,
+  // so Home Assistant's own default never shows first; a link to a page is a link to that page.
+  const home =
+    (device && typeof device.home === 'string' && device.home) ||
+    (wall ? (cache?.house?.wall?.dashboards?.[0] ?? '') : '');
+  if (home && !home.includes('/') && location.pathname === '/')
+    history.replaceState(history.state, '', `/${home}${location.search}${location.hash}`);
   if (device && ZOOMS.includes(device.zoom) && device.zoom !== 100)
     document.documentElement.style.setProperty('--fluvy-zoom', String(device.zoom / 100));
 } catch {

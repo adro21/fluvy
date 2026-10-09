@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Each device opens on the dashboard it chooses.** Home Assistant's *Set as default* has been one choice for
+  every device since 2025.12; *This device · Opens on* in the panel's *Wall* tab gives a phone, a computer or a
+  tablet its own, remembered in the device. A wall with no choice opens on the house's first wall dashboard.
+
 ## [1.5.16] — 2026-10-09
 
 ### Added

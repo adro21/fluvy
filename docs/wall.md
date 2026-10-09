@@ -48,6 +48,15 @@ the settings and comes back, or until the screensaver would have started; the ne
 again for good, switch *Wall panel* off in the *Wall* tab, or open the address with `?kiosk=0` on it — a notice,
 *Wall mode off · Back to the wall*, then offers the way back for a few seconds.
 
+## Which dashboard a device opens on
+
+Home Assistant's *Set as default* (since 2025.12) chooses one dashboard for every device and every user at once.
+Each device may choose its own under *This device · Opens on* in the *Wall* tab: a phone opens on its phone
+dashboard, a computer on the full one, and a wall with no choice of its own opens on the house's first wall
+dashboard. The choice stays in the device (`fluvy:device`, `home`); the loader reads it before Home Assistant
+routes, so an app opened at its root goes straight there and the default never shows first. A link to a page is
+still a link to that page: only the root is sent on.
+
 ## Reading from across the room
 
 A tablet on the wall is read from further away than a phone in the hand. The size is the device's own, like the

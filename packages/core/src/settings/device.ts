@@ -19,12 +19,19 @@ export interface DeviceSettings {
   readonly wall: boolean | null;
   /** The size this browser reads its dashboards at (the view alone, never Home Assistant's chrome). */
   readonly zoom: DeviceZoom;
+  /** The dashboard (url path) this browser opens Home Assistant on; '' leaves it to Home Assistant. */
+  readonly home: string;
 }
 
 /** What a device may change about itself (the version is never written). */
 export type DevicePatch = Partial<Omit<DeviceSettings, 'version'>>;
 
-export const DEVICE_DEFAULTS: DeviceSettings = { version: DEVICE_VERSION, wall: null, zoom: 100 };
+export const DEVICE_DEFAULTS: DeviceSettings = {
+  version: DEVICE_VERSION,
+  wall: null,
+  zoom: 100,
+  home: '',
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -39,7 +46,25 @@ export function parseDevice(raw: unknown): DeviceSettings {
     version: DEVICE_VERSION,
     wall: typeof value['wall'] === 'boolean' ? value['wall'] : DEVICE_DEFAULTS.wall,
     zoom: isZoom(value['zoom']) ? value['zoom'] : DEVICE_DEFAULTS.zoom,
+    home: isUrlPath(value['home']) ? value['home'] : DEVICE_DEFAULTS.home,
   };
+}
+
+/** A dashboard's url path: one segment, no slash. */
+const isUrlPath = (value: unknown): value is string =>
+  typeof value === 'string' && value !== '' && !value.includes('/');
+
+/**
+ * The dashboard this device opens Home Assistant on: its own choice; else, as a wall, the house's first wall
+ * dashboard; else '' — Home Assistant's own default. The loader carries the same rule, before the app routes.
+ */
+export function deviceHome(
+  device: Pick<DeviceSettings, 'home'>,
+  wall: boolean,
+  wallDashboards: readonly string[],
+): string {
+  if (device.home) return device.home;
+  return wall ? (wallDashboards[0] ?? '') : '';
 }
 
 export const readDevice = (): DeviceSettings => parseDevice(readStored<unknown>(DEVICE_KEY));

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   DEVICE_KEY,
   DEVICE_ZOOMS,
+  deviceHome,
   latchFromUrl,
   isTablet,
   latchZoomFromUrl,
@@ -22,21 +23,32 @@ describe('what this device is', () => {
   beforeEach(() => localStorage.clear());
 
   it('lets the house decide until it says so, and remembers what it says', () => {
-    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100 });
-    expect(writeDevice({ wall: true })).toEqual({ version: 1, wall: true, zoom: 100 });
+    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100, home: '' });
+    expect(writeDevice({ wall: true })).toEqual({ version: 1, wall: true, zoom: 100, home: '' });
     expect(JSON.parse(localStorage.getItem(DEVICE_KEY) ?? '{}')).toEqual({
       version: 1,
       wall: true,
       zoom: 100,
+      home: '',
     });
     expect(readDevice().wall).toBe(true);
   });
 
   it('reads a broken value as the default', () => {
     localStorage.setItem(DEVICE_KEY, '{"wall":"yes"}');
-    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100 });
+    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100, home: '' });
     localStorage.setItem(DEVICE_KEY, 'nonsense');
-    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100 });
+    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100, home: '' });
+  });
+
+  it('opens on the dashboard it chose, else as a wall on the first wall dashboard, else as Home Assistant says', () => {
+    expect(parseDevice({ home: 'fluvy-mobile' }).home).toBe('fluvy-mobile');
+    expect(parseDevice({ home: '/fluvy-mobile/home' }).home).toBe(''); // a path, not a dashboard
+    expect(parseDevice({ home: 7 }).home).toBe('');
+    expect(deviceHome({ home: 'fluvy-mobile' }, true, ['fluvy-wall'])).toBe('fluvy-mobile');
+    expect(deviceHome({ home: '' }, true, ['fluvy-wall', 'fluvy-auto'])).toBe('fluvy-wall');
+    expect(deviceHome({ home: '' }, true, [])).toBe('');
+    expect(deviceHome({ home: '' }, false, ['fluvy-wall'])).toBe('');
   });
 
   it('knows a tablet: a touch screen with no mouse, 600 or more on its shorter side', () => {
@@ -81,8 +93,8 @@ describe('what this device is', () => {
     expect(parseDevice({ zoom: 120 }).zoom).toBe(100);
     expect(parseDevice({ zoom: '125' }).zoom).toBe(100);
     expect(parseDevice({ zoom: 1.25 }).zoom).toBe(100);
-    expect(writeDevice({ zoom: 125 })).toEqual({ version: 1, wall: null, zoom: 125 });
-    expect(writeDevice({ wall: true })).toEqual({ version: 1, wall: true, zoom: 125 });
+    expect(writeDevice({ zoom: 125 })).toEqual({ version: 1, wall: null, zoom: 125, home: '' });
+    expect(writeDevice({ wall: true })).toEqual({ version: 1, wall: true, zoom: 125, home: '' });
   });
 
   it.each([
