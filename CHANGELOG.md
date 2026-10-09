@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.13] — 2026-10-09
+
 ### Removed
 
 - **The sideways-scroll diagnostic** (the `fluvy.overflow` lines in Home Assistant's log, and the brief flicker
