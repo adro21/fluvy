@@ -32,7 +32,16 @@ and explain in plain language.
   interactions* job does, and a failure there emails the owner. After changing a control's behaviour (a ruler, a
   stepper, a card's taps), run them locally: `FLUVY_NO_HMR=1 pnpm --filter @fluvy/playground dev` in the background,
   then `node tools/render/visual.mjs` (or `… visual.mjs base foundations` for a subset). 1.5.1 made fine adjust
-  opt-in without updating them, and CI failed on every push until 2026-10-08.
+  opt-in without updating them, and CI failed on every push until 2026-10-08; 1.5.6 made the wall's × pause and
+  CI failed again until the wall suite was updated. Before pushing a behaviour change, run **every** suite
+  (`node tools/render/visual.mjs` with no arguments, ~10 minutes) and check `gh run list --repo adro21/fluvy`
+  afterwards: a red run emails the owner.
+- A bug the owner sees only on the iPhone (the Home Assistant app is WebKit) will not show in Chrome on the Mac.
+  Playwright's WebKit is installed for `tools/render` (`npx playwright install webkit`); a probe against the
+  playground reproduces first-frame layout differences. When that is not enough, a temporary in-page diagnostic
+  that writes to Home Assistant's log (`hass.callService('system_log','write',…)`, read with
+  `node tools/dev/ha.mjs ws '{"type":"system_log/list"}'`) gets facts off the phone with the owner only reopening
+  the app — that is how 1.5.12's sideways-scroll fix was found. Remove it in the next release.
 - Known flake: `packages/cards/src/panel/panel.test.ts` ("shows the screensaver…") waits a fixed 80 ms for a lazy
   import and can fail when every package tests at once. Rerun `pnpm check`; it is not a real failure.
 
