@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.18] — 2026-10-09
+
 ### Fixed
 
 - **A device's own dashboard holds in the phone app.** The app reopens on the last page it showed rather than at
