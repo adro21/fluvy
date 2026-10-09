@@ -4,17 +4,25 @@ import {
   DEVICE_KEY,
   DEVICE_ZOOMS,
   latchFromUrl,
+  isTablet,
   latchZoomFromUrl,
   parseDevice,
   readDevice,
+  wallDevice,
   writeDevice,
 } from '../settings/device.js';
+
+/** A window of the given kind: a tablet (touch, no mouse, wide), a phone (touch, narrow) or a computer. */
+const windowOf = (kind: 'tablet' | 'phone' | 'computer') => ({
+  matchMedia: (query: string) => ({ matches: kind !== 'computer' && /hover: none/.test(query) }),
+  screen: { width: kind === 'phone' ? 390 : 1280, height: kind === 'phone' ? 844 : 800 },
+});
 
 describe('what this device is', () => {
   beforeEach(() => localStorage.clear());
 
-  it('is not a wall until it says so, and remembers it', () => {
-    expect(readDevice()).toEqual({ version: 1, wall: false, zoom: 100 });
+  it('lets the house decide until it says so, and remembers what it says', () => {
+    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100 });
     expect(writeDevice({ wall: true })).toEqual({ version: 1, wall: true, zoom: 100 });
     expect(JSON.parse(localStorage.getItem(DEVICE_KEY) ?? '{}')).toEqual({
       version: 1,
@@ -26,9 +34,29 @@ describe('what this device is', () => {
 
   it('reads a broken value as the default', () => {
     localStorage.setItem(DEVICE_KEY, '{"wall":"yes"}');
-    expect(readDevice()).toEqual({ version: 1, wall: false, zoom: 100 });
+    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100 });
     localStorage.setItem(DEVICE_KEY, 'nonsense');
-    expect(readDevice()).toEqual({ version: 1, wall: false, zoom: 100 });
+    expect(readDevice()).toEqual({ version: 1, wall: null, zoom: 100 });
+  });
+
+  it('knows a tablet: a touch screen with no mouse, 600 or more on its shorter side', () => {
+    expect(isTablet(windowOf('tablet'))).toBe(true);
+    expect(isTablet(windowOf('phone'))).toBe(false);
+    expect(isTablet(windowOf('computer'))).toBe(false);
+    expect(isTablet(undefined)).toBe(false);
+  });
+
+  it('is a wall by its own word first, and by the house’s rule for tablets otherwise', () => {
+    // the house makes tablets walls: a tablet that said nothing is one, a phone or a computer is not
+    expect(wallDevice('tablets', { wall: null }, windowOf('tablet'))).toBe(true);
+    expect(wallDevice('tablets', { wall: null }, windowOf('phone'))).toBe(false);
+    expect(wallDevice('tablets', { wall: null }, windowOf('computer'))).toBe(false);
+    // the device's own word wins either way
+    expect(wallDevice('tablets', { wall: false }, windowOf('tablet'))).toBe(false);
+    expect(wallDevice('chosen', { wall: true }, windowOf('computer'))).toBe(true);
+    // chosen by hand (the default, and a house saved before the rule existed): a tablet that said nothing is not one
+    expect(wallDevice('chosen', { wall: null }, windowOf('tablet'))).toBe(false);
+    expect(wallDevice(undefined, { wall: null }, windowOf('tablet'))).toBe(false);
   });
 
   it.each([
@@ -53,7 +81,7 @@ describe('what this device is', () => {
     expect(parseDevice({ zoom: 120 }).zoom).toBe(100);
     expect(parseDevice({ zoom: '125' }).zoom).toBe(100);
     expect(parseDevice({ zoom: 1.25 }).zoom).toBe(100);
-    expect(writeDevice({ zoom: 125 })).toEqual({ version: 1, wall: false, zoom: 125 });
+    expect(writeDevice({ zoom: 125 })).toEqual({ version: 1, wall: null, zoom: 125 });
     expect(writeDevice({ wall: true })).toEqual({ version: 1, wall: true, zoom: 125 });
   });
 

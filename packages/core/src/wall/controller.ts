@@ -2,7 +2,7 @@ import { resyncCardThemes, setDarkOverride } from '../card.js';
 import type { HomeAssistant } from '../ha/types.js';
 import { firstWeather } from '../entity.js';
 import { WALL_ATTRIBUTE, WALL_BACKGROUND_VAR } from '../look/attributes.js';
-import { readDevice, writeDevice } from '../settings/device.js';
+import { readDevice, wallDevice, writeDevice } from '../settings/device.js';
 import type { EffectiveSettings, WallExit } from '../settings/schema.js';
 import { createIdle, type Idle } from './idle.js';
 import { urlPathOf, wallOn } from './on.js';
@@ -292,7 +292,7 @@ export function createWall(deps: WallDeps): WallHandle {
     const hass = deps.hass();
     const settings = deps.settings();
     const on = wallOn({
-      device: readDevice(),
+      device: { wall: wallDevice(settings.wall.devices, readDevice(), win) },
       paused: paused(),
       urlPath: urlPathOf(win.location.pathname),
       panels: hass?.panels,
@@ -341,7 +341,7 @@ export function createWall(deps: WallDeps): WallHandle {
     session(win)?.removeItem(PAUSED_KEY);
     evaluate();
     void ui().then((pieces) => {
-      if (readDevice().wall) return;
+      if (wallDevice(deps.settings().wall.devices, readDevice(), win)) return;
       stopToast?.();
       stopToast = pieces.notice({ kind: 'left', onAction: comeBack, hass: deps.hass });
       win.clearTimeout(leftTimer);

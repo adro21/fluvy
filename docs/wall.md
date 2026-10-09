@@ -5,10 +5,13 @@ screensaver with the clock after a while, dark at night. Wall mode is two decisi
 
 - **The house says how its walls behave** — in the panel's *Wall* tab (an administrator): which dashboards are
   walls, the screensaver, the day and night, the background. These settings travel with the house, like the look.
-- **The device says it is a wall** — the tablet itself, once: open the dashboard's address with `?kiosk` on it
-  (`https://your-home/fluvy-wall?kiosk`; the *Wall* tab shows the address and copies it), or switch *Use this device
-  as a wall panel* on in the *Wall* tab from the tablet. The tablet remembers; a phone that opens the same dashboard
-  is not a wall. `?kiosk=0` makes it a device again.
+- **The device is a wall** — by the house's rule or by its own word. Under *Which devices are walls* in the *Wall*
+  tab, *Every tablet* makes any tablet a wall on its own: a touch screen with no mouse, at least 600 px on its
+  shorter side, so a phone (too narrow) or a computer (a mouse) never is. *Chosen by hand* (the default, and what a
+  house saved before this choice existed keeps) makes only a device that says so a wall. A device's own word wins
+  either way: *This device* in the *Wall* tab is *Automatic*, *Wall* or *Not a wall*; the address with `?kiosk` on it
+  (`https://your-home/fluvy-wall?kiosk`; the tab shows and copies it) says *Wall*, `?kiosk=0` says *Not a wall*. The
+  device remembers.
 
 A page is a wall while both hold and the page is one of the house's walls: the dashboards chosen in *Wall
 dashboards*, or, with none chosen, any dashboard that wears the look. Fluvy's own panel and Home Assistant's

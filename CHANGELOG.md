@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Tablets become walls on their own.** *Which devices are walls* in the panel's *Wall* tab: *Every tablet* makes any
+  touch screen without a mouse, 600 px or more on its shorter side, a wall panel without an address to type or a
+  switch to find — a phone or a computer never. *Chosen by hand* keeps today's way, and is what a house saved before
+  this choice keeps. A device's own word still wins: *This device* is now *Automatic*, *Wall* or *Not a wall*, and
+  `?kiosk` / `?kiosk=0` still say it from the address.
+
 ## [1.5.15] — 2026-10-09
 
 ### Fixed

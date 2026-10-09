@@ -55,8 +55,13 @@ export type WallExit = 'button' | 'hold';
 export const WALL_AFTER = [0, 2, 5, 10, 30] as const;
 export const WALL_NIGHT_DIM = [0, 20, 40, 60] as const;
 
+/** Which devices are walls: those switched on by hand, or every tablet as well (`isTablet`). */
+export type WallDevices = 'chosen' | 'tablets';
+
 /** How the house's wall panels behave (a device says it is one: `DeviceSettings`). */
 export interface WallSettings {
+  /** Which devices are walls: `chosen` by hand on each, or every `tablets` unless one says otherwise. */
+  readonly devices: WallDevices;
   /** Dashboards (url paths) that are walls; empty: any dashboard that wears the look. */
   readonly dashboards: readonly string[];
   /** Minutes before the screensaver; 0 never. */
@@ -155,6 +160,7 @@ export const HOUSE_DEFAULTS: HouseSettings = {
   history: true,
   palettes: [],
   wall: {
+    devices: 'chosen',
     dashboards: [],
     after: 10,
     clock: true,
@@ -209,6 +215,7 @@ export function parseWall(raw: unknown): WallSettings {
   const d = WALL_DEFAULTS;
   const wake = value['wakeEntity'];
   return {
+    devices: oneOf(value['devices'], ['chosen', 'tablets'] as const) ? value['devices'] : d.devices,
     dashboards: Array.isArray(value['dashboards'])
       ? value['dashboards'].filter((path): path is string => typeof path === 'string')
       : d.dashboards,

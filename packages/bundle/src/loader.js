@@ -42,7 +42,17 @@ try {
 const ZOOMS = [90, 100, 110, 125, 150];
 try {
   const device = JSON.parse(localStorage.getItem('fluvy:device') ?? 'null');
-  if (device && device.wall === true) document.documentElement.setAttribute('fluvy-wall', '');
+  // a device that made no choice is a wall when the house makes tablets walls and this is one: a touch screen
+  // with no mouse, 600 or more on its shorter side (`isTablet` in core's settings/device.ts, the same rule)
+  let wall = device ? device.wall === true : false;
+  if (!device || device.wall == null) {
+    const cache = JSON.parse(localStorage.getItem('fluvy:settings') ?? 'null');
+    wall =
+      cache?.house?.wall?.devices === 'tablets' &&
+      window.matchMedia('(hover: none) and (pointer: coarse)').matches &&
+      Math.min(window.screen.width, window.screen.height) >= 600;
+  }
+  if (wall) document.documentElement.setAttribute('fluvy-wall', '');
   if (device && ZOOMS.includes(device.zoom) && device.zoom !== 100)
     document.documentElement.style.setProperty('--fluvy-zoom', String(device.zoom / 100));
 } catch {

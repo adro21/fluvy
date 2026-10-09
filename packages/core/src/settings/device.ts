@@ -15,8 +15,8 @@ export type DeviceZoom = (typeof DEVICE_ZOOMS)[number];
 
 export interface DeviceSettings {
   readonly version: typeof DEVICE_VERSION;
-  /** This browser is a wall panel. */
-  readonly wall: boolean;
+  /** This browser is a wall panel (`true`), is not (`false`), or lets the house decide (`null`: a tablet is one). */
+  readonly wall: boolean | null;
   /** The size this browser reads its dashboards at (the view alone, never Home Assistant's chrome). */
   readonly zoom: DeviceZoom;
 }
@@ -24,7 +24,7 @@ export interface DeviceSettings {
 /** What a device may change about itself (the version is never written). */
 export type DevicePatch = Partial<Omit<DeviceSettings, 'version'>>;
 
-export const DEVICE_DEFAULTS: DeviceSettings = { version: DEVICE_VERSION, wall: false, zoom: 100 };
+export const DEVICE_DEFAULTS: DeviceSettings = { version: DEVICE_VERSION, wall: null, zoom: 100 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -43,6 +43,41 @@ export function parseDevice(raw: unknown): DeviceSettings {
 }
 
 export const readDevice = (): DeviceSettings => parseDevice(readStored<unknown>(DEVICE_KEY));
+
+/** The shortest side a tablet has, in CSS pixels: a phone is narrower, whichever way it is held. */
+export const TABLET_MIN_SIDE = 600;
+
+/** What the tablet rule asks of a window: a media query and the screen's size (a test hands its own). */
+export interface ScreenLike {
+  matchMedia(query: string): { readonly matches: boolean };
+  readonly screen: { readonly width: number; readonly height: number };
+}
+
+/**
+ * A tablet: a touch screen with no mouse (`hover: none`, `pointer: coarse`) at least `TABLET_MIN_SIDE` on its
+ * shorter side. A phone fails the size, a computer the pointer. The loader carries the same rule.
+ */
+export function isTablet(win: ScreenLike | undefined = globalWindow()): boolean {
+  if (!win || typeof win.matchMedia !== 'function') return false;
+  if (!win.matchMedia('(hover: none) and (pointer: coarse)').matches) return false;
+  const { width, height } = win.screen;
+  return Math.min(width, height) >= TABLET_MIN_SIDE;
+}
+
+const globalWindow = (): Window | undefined => (typeof window === 'undefined' ? undefined : window);
+
+/**
+ * Whether this device is a wall: what it chose for itself, or, with no choice made, what the house says of
+ * tablets — `devices: 'tablets'` makes every tablet a wall, `'chosen'` (the default) only a device switched on.
+ */
+export function wallDevice(
+  devices: 'chosen' | 'tablets' | undefined,
+  device: Pick<DeviceSettings, 'wall'> = readDevice(),
+  win: ScreenLike | undefined = globalWindow(),
+): boolean {
+  if (device.wall !== null) return device.wall;
+  return devices === 'tablets' && isTablet(win);
+}
 
 export function writeDevice(patch: DevicePatch): DeviceSettings {
   const next = parseDevice({ ...readDevice(), ...patch });

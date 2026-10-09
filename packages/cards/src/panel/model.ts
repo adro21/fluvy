@@ -342,7 +342,9 @@ export function changeLines(ctx: PanelContext): string[] {
   if (house.history !== undefined) lines.push(`${t('scope.history')} · ${onOff(house.history)}`);
   const device = ctx.deviceEdit;
   if (device.wall !== undefined)
-    lines.push(`${t('tab.wall')} · ${t('wall.use')} · ${onOff(device.wall)}`);
+    lines.push(
+      `${t('tab.wall')} · ${t('wall.use')} · ${device.wall === null ? t('wall.device_auto') : onOff(device.wall)}`,
+    );
   if (device.zoom !== undefined)
     lines.push(`${t('pref.size')} · ${t('wall.percent', { count: device.zoom })}`);
   if (house.wall)

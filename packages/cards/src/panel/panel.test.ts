@@ -402,18 +402,16 @@ describe('the settings panel', () => {
 
   it('edits the wall whole and this device apart: the screensaver minutes saved with the house, the device on Save', async () => {
     localStorage.removeItem('fluvy:device');
-    const { panel, root, row, chip, button, handle, settle } = await mount();
+    const { panel, root, chip, button, handle, settle } = await mount();
     panel.tab = 'wall';
     await settle();
-    // this device is not a wall; the house's wall waits ten minutes
-    expect(row('Wall panel')?.querySelector('.fv-switch')?.getAttribute('aria-checked')).toBe(
-      'false',
-    );
+    // this device lets the house decide (and is no tablet); the house's wall waits ten minutes
+    expect(chip('Automatic')?.classList.contains('is-active')).toBe(true);
     expect(chip('10 min')?.classList.contains('is-active')).toBe(true);
     chip('5 min')!.click();
     await settle();
     expect(root.querySelector('.pn-bar')?.textContent).toContain('Wall · Screensaver after');
-    row('Wall panel')!.querySelector<HTMLElement>('.fv-hit')!.click();
+    chip('A wall')!.click();
     await settle();
     expect(root.querySelector('.pn-bar')?.textContent).toContain('2 changes');
     button('Save')!.click();

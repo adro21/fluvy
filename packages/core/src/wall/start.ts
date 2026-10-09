@@ -2,7 +2,8 @@ import type { HomeAssistant } from '../ha/types.js';
 import { WALL_ATTRIBUTE } from '../look/attributes.js';
 import type { LookHandle } from '../look/start.js';
 import { appHass } from '../look/start.js';
-import { latchFromUrl, readDevice } from '../settings/device.js';
+import { latchFromUrl, wallDevice } from '../settings/device.js';
+import { cachedSettings } from '../settings/store.js';
 import type { WallHandle, WallPhase, WallUi } from './controller.js';
 
 /*
@@ -45,13 +46,15 @@ export function startWall(options: WallStartOptions): WallFacade {
   }
   // the loader marks the page a wall before anything is drawn, from what the device remembered: an address that
   // says `kiosk=0` (or a memory the panel's switch cleared) takes the mark off now, not at the next reload
-  if (!readDevice().wall) document.documentElement.removeAttribute(WALL_ATTRIBUTE);
+  const { look } = options;
+  // what the device is: its own choice, or the house's rule for tablets (the live settings, else the cached ones)
+  const isWall = (): boolean => wallDevice((look?.settings() ?? cachedSettings())?.wall.devices);
+  if (!isWall()) document.documentElement.removeAttribute(WALL_ATTRIBUTE);
   const listeners = new Set<(phase: WallPhase) => void>();
   let inner: WallHandle | undefined;
   let loading = false;
-  const { look } = options;
   const load = (): void => {
-    if (inner || loading || !look || !readDevice().wall) return;
+    if (inner || loading || !look || !isWall()) return;
     loading = true;
     void import('./controller.js').then((m) => {
       inner = m.createWall({

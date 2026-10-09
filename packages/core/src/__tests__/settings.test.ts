@@ -82,6 +82,7 @@ describe('parsing stored settings', () => {
     expect(parseWall(undefined)).toEqual(WALL_DEFAULTS);
     expect(
       parseWall({
+        devices: 'tablets',
         dashboards: ['fluvy-wall', 7],
         after: 5,
         clock: false,
@@ -95,6 +96,7 @@ describe('parsing stored settings', () => {
         exit: 'hold',
       }),
     ).toEqual({
+      devices: 'tablets',
       dashboards: ['fluvy-wall'],
       after: 5,
       clock: false,
@@ -109,6 +111,7 @@ describe('parsing stored settings', () => {
     });
     expect(
       parseWall({
+        devices: 'everyone',
         after: 7,
         wakeEntity: 'light.hall',
         theme: 'night',
@@ -121,6 +124,8 @@ describe('parsing stored settings', () => {
     ).toEqual(WALL_DEFAULTS);
     // a wall saved before the way out could be chosen has the button
     expect(parseWall({ after: 5 }).exit).toBe('button');
+    // a house saved before tablets could be walls on their own keeps choosing its devices by hand
+    expect(parseWall({ after: 5 }).devices).toBe('chosen');
   });
 
   it('keeps the well-formed saved palettes, the first of each name, twelve at most', () => {

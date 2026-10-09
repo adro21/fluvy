@@ -26,6 +26,7 @@ import {
   WALL_NIGHT_DIM,
   type WallSettings,
   wearsLook,
+  isTablet,
 } from '@fluvy/core';
 import { chips, head, icon, listRow, options } from '@fluvy/ui';
 import '@fluvy/ui/select';
@@ -1183,7 +1184,13 @@ export function wall(ctx: PanelContext): TemplateResult {
   const { shown, admin, hass } = ctx;
   const settings = shown.wall;
   const edit = (patch: Partial<WallSettings>): void => ctx.editWall(patch);
-  const isWall = ctx.deviceEdit.wall ?? ctx.device.wall;
+  const deviceWall = ctx.deviceEdit.wall === undefined ? ctx.device.wall : ctx.deviceEdit.wall;
+  const tablet = isTablet();
+  const automatic = settings.devices === 'tablets' && tablet;
+  const deviceSub =
+    deviceWall === null
+      ? ctx.t(automatic ? 'wall.device_auto_tablet' : 'wall.device_auto_other')
+      : ctx.t(deviceWall ? 'wall.use_sub' : 'wall.device_off_sub');
   const first =
     settings.dashboards[0] ?? ctx.dashboards.find((d) => d.template)?.urlPath ?? 'fluvy-auto';
   const address = `${location.origin}/${first}?kiosk`;
@@ -1202,17 +1209,16 @@ export function wall(ctx: PanelContext): TemplateResult {
   const chip = (label: string, key: string, active: boolean) => ({ key, label, active });
   return html`<section class="fv-card pn-card">
       ${head({ icon: 'frame', title: ctx.t('wall.device'), sub: ctx.t('wall.device_sub') })}
-      <div class="pn-rows">
-        ${listRow({
-          icon: 'frame',
-          tone: isWall ? 'accent' : 'neutral',
-          title: ctx.t('wall.use'),
-          sub: ctx.t('wall.use_sub'),
-          trailing: 'switch',
-          on: isWall,
-          onToggle: (on) => ctx.editDevice({ wall: on }),
-        })}
-      </div>
+      <p class="fv-label pn-label">${ctx.t('wall.use')}</p>
+      <p class="pn-hint">${deviceSub}</p>
+      ${choice(
+        [
+          chip(ctx.t('wall.device_auto'), 'auto', deviceWall === null),
+          chip(ctx.t('wall.device_on'), 'on', deviceWall === true),
+          chip(ctx.t('wall.device_off'), 'off', deviceWall === false),
+        ],
+        (key) => ctx.editDevice({ wall: key === 'auto' ? null : key === 'on' }),
+      )}
       ${deviceSize(ctx)}
       <p class="fv-label pn-label">${ctx.t('wall.address')}</p>
       <div class="pn-address">
@@ -1231,6 +1237,16 @@ export function wall(ctx: PanelContext): TemplateResult {
         </button>
       </div>
       <p class="pn-hint pn-hint--after">${ctx.t('wall.address_sub')}</p>
+    </section>
+    <section class="fv-card pn-card">
+      ${head({ icon: 'frame', title: ctx.t('wall.devices'), sub: ctx.t('wall.devices_sub') })}
+      ${choice(
+        [
+          chip(ctx.t('wall.devices_tablets'), 'tablets', settings.devices === 'tablets'),
+          chip(ctx.t('wall.devices_chosen'), 'chosen', settings.devices === 'chosen'),
+        ],
+        admin ? (key) => edit({ devices: key as WallSettings['devices'] }) : null,
+      )}
     </section>
     <section class="fv-card pn-card">
       ${head({
