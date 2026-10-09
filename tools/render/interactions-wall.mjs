@@ -1,8 +1,9 @@
 /**
  * The wall in a real Chromium against the playground: the page as a wall panel on the real controller —
  * no chrome attribute without a touch, the screensaver after the minutes, the touch that wakes it reaching no
- * card, the corner's button that leaves (there while someone is, gone at rest, the notice and the way back), the
- * corner's hold that pauses when the house chose it (a shorter hold does nothing), and the night.
+ * card, the corner's button that pauses (there while someone is, gone at rest, the notice and Resume, the wall back
+ * by itself when the screensaver would have come), the corner's hold that pauses when the house chose it (a
+ * shorter hold does nothing), and the night.
  *
  *   PLAYGROUND=http://127.0.0.1:5183/ node interactions-wall.mjs
  */
@@ -49,30 +50,29 @@ const ready = async (page) => {
   await page.clock.runFor(300);
   await settle(page, 300);
   check(
-    'a tap leaves the wall: the chrome back, the device out, the notice with the way back',
-    (await phase(page)) === 'off' &&
+    'a tap pauses the wall: the chrome back, the device still a wall, the notice with Resume',
+    (await phase(page)) === 'paused' &&
       !(await walled(page)) &&
-      (await device()) === false &&
-      ((await page.locator('fluvy-wall-toast .toast').textContent()) ?? '').includes(
-        'Wall mode off',
-      ),
+      (await device()) === true &&
+      ((await page.locator('fluvy-wall-toast .toast').textContent()) ?? '').includes('Wall paused'),
     `${await phase(page)} · device ${await device()}`,
   );
   await page.locator('fluvy-wall-toast button').click();
   await page.clock.runFor(300);
   await settle(page, 300);
   check(
-    '"Back to the wall" makes it a wall again',
+    'Resume makes it a wall again',
     (await phase(page)) === 'awake' && (await walled(page)) && (await device()) === true,
   );
   await page.locator('fluvy-wall-corner button').click();
-  await page.clock.runFor(8500);
+  await page.clock.runFor(10 * 60_000 + 1000);
   await settle(page, 300);
   check(
-    'left alone, the notice goes and the device stays out',
+    'left alone, the wall comes back by itself when the screensaver would have, the device still a wall',
     (await page.locator('fluvy-wall-toast').count()) === 0 &&
-      (await phase(page)) === 'off' &&
-      (await device()) === false,
+      (await phase(page)) === 'awake' &&
+      (await device()) === true,
+    `${await phase(page)} · device ${await device()}`,
   );
   await page.close();
 }
