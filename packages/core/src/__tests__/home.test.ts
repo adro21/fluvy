@@ -6,7 +6,7 @@ describe('Home Assistant’s default dashboard, as its frontend resolves it', ()
   const panels = {
     lovelace: { component_name: 'lovelace' },
     'fluvy-auto': { component_name: 'lovelace' },
-  } as unknown as HomeAssistant['panels'];
+  } as unknown as NonNullable<HomeAssistant['panels']>;
   const storage = (value: string | null) => ({ getItem: () => value });
   it('is this user’s, then everyone’s, then the browser’s memory, then home; and waits for the app’s data', () => {
     expect(defaultPanelOf({ panels, userData: {}, systemData: {} }, storage(null))).toBe('home');
