@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.11] — 2026-10-09
+
 ### Changed
 
 - **The sideways-scroll diagnostic says more**: which container holds the extra width and what sits in it, and
