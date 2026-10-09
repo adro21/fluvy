@@ -176,14 +176,22 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
         bottom: 12px;
         left: 12px;
         max-width: calc(100% - 24px);
+        padding: 0; /* sized to its words by fitPills (8 a side, on the 4 grid) */
         z-index: 4;
         pointer-events: none;
+      }
+      .dv-cam__name span {
+        min-width: 0;
+        margin-left: 14px; /* past the dot (8) and its gap (6) */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      /* the dot at a fixed 8 from the pill's edge, on the grid whatever lead-in the fit gives the words */
       .dv-cam__name i {
-        flex: none;
+        position: absolute;
+        left: 8px;
+        top: 8px;
         width: 8px;
         height: 8px;
         border-radius: 50%;
@@ -504,7 +512,8 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
           compact
             ? html`<span
                 class="dv-cam__pill dv-cam__name ${this.stale_ || !this.stamp_ ? 'is-stale' : ''}"
-                ><i></i>${name}</span
+                data-fit="16"
+                ><i></i><span>${name}</span></span
               >`
             : nothing
         }
