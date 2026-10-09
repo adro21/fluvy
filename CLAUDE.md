@@ -29,13 +29,13 @@ and explain in plain language.
   interface lacks and vice versa) → a field in `getConfigForm()` → a word under `"editor"` in all 8 catalogues
   (`editor.<key>` is picked up automatically). `packages/cards/src/shared/editors.test.ts` enforces all of it.
 - `pnpm check` does **not** run the browser suites (`tools/render/interactions*.mjs`); CI's *Measurer and
-  interactions* job does, and a failure there emails the owner. After changing a control's behaviour (a ruler, a
-  stepper, a card's taps), run them locally: `FLUVY_NO_HMR=1 pnpm --filter @fluvy/playground dev` in the background,
-  then `node tools/render/visual.mjs` (or `… visual.mjs base foundations` for a subset). 1.5.1 made fine adjust
-  opt-in without updating them, and CI failed on every push until 2026-10-08; 1.5.6 made the wall's × pause and
-  CI failed again until the wall suite was updated. Before pushing a behaviour change, run **every** suite
-  (`node tools/render/visual.mjs` with no arguments, ~10 minutes) and check `gh run list --repo adro21/fluvy`
-  afterwards: a red run emails the owner.
+  interactions* job does, and a failure there emails the owner. **Speed first (the owner's rule, 2026-10-09):**
+  do not run the suites locally before a push unless the change alters a control's behaviour (a ruler, a stepper,
+  a card's taps, the wall's corner) — then run only the suite that covers it (`node tools/render/visual.mjs
+  <suite>`), never all 25 (~10 minutes). A dashboard-only change needs no check, no release and no Chrome look:
+  save it over the API and let the owner look on his phone. Verify in the owner's Chrome only when asked. After a
+  push, `gh run list --repo adro21/fluvy` once; a red run emails the owner. (History: 1.5.1 and 1.5.6 broke the
+  suites and CI stayed red for days — that is what the suites guard against.)
 - A bug the owner sees only on the iPhone (the Home Assistant app is WebKit) will not show in Chrome on the Mac.
   Playwright's WebKit is installed for `tools/render` (`npx playwright install webkit`); a probe against the
   playground reproduces first-frame layout differences. When that is not enough, a temporary in-page diagnostic
@@ -45,7 +45,12 @@ and explain in plain language.
 - Known flake: `packages/cards/src/panel/panel.test.ts` ("shows the screensaver…") waits a fixed 80 ms for a lazy
   import and can fail when every package tests at once. Rerun `pnpm check`; it is not a real failure.
 
-## Release procedure (what worked on 2026-10-07 for 1.5.1)
+## Release procedure (what worked on 2026-10-07 for 1.5.1; 1.5.14–1.5.18 on 2026-10-09)
+
+Before releasing anything the owner will see on a phone, check it at phone width first (a 109 px camera thumbnail
+cut its name in 1.5.14 and cost a second release). The whole procedure takes about 8 minutes when nothing fails;
+tell the owner that up front, and never stack a second release on an untested guess about how a device behaves
+(the phone app reopens on the last page it showed, not at the root — 1.5.17 assumed the root and 1.5.18 fixed it).
 
 1. Make the change, commit it (`git commit -s`).
 2. `node tools/release/version.mjs X.Y.Z` — bumps every package.json, the integration's manifest and turns the
