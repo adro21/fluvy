@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.15] — 2026-10-09
+
 ### Fixed
 
 - **The compact camera's name pill** sits 8 px from the picture's corner instead of 12, so a thumbnail a third of
