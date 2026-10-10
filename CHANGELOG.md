@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.25] — 2026-10-10
+
 ### Changed
 
 - **The clock's date grows with its digits.** The line under a `large`, `huge` or `giant` time is bigger too, half as
