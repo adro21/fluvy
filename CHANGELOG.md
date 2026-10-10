@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.24] — 2026-10-10
+
 ### Added
 
 - **A dashboard button that starts the screensaver.** On a wall, a card action of `fire-dom-event` with
