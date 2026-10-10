@@ -23,7 +23,9 @@ const release = args.includes('--release') || args.includes('--tag');
 /** Each chunk's gzip budget in bytes (`core` is what every page loads; the rest come on demand). */
 const BUDGETS = {
   'fluvy.js': 2048,
-  core: 225_280,
+  // 224 KB, as packages/bundle/scripts/finish.mjs allows since 1.5.21 (the camera's live view in every page);
+  // CI's zlib packs a few hundred bytes worse than a newer Node's, so the two must agree
+  core: 229_376,
   panel: 40_960,
   strategy: 24_576,
   wall: 16_384,
