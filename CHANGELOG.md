@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.22] — 2026-10-10
+
 ### Fixed
 
 - **The camera's full-screen view fills the screen.** Home Assistant's player keeps a band free for the pop-up it
