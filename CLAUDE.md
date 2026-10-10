@@ -107,7 +107,10 @@ network namespace: reach host ports as `10.0.0.197:<port>`, never `127.0.0.1`. L
 add-on** (`a889bffc_go2rtc`, configured in `/config/go2rtc.yaml`, WebRTC on 18555 TCP+UDP, forwarded by the router,
 `candidates: [stun:18555]` for the public address) with `go2rtc: url: http://127.0.0.1:1984` in `configuration.yaml`;
 Home Assistant's built-in go2rtc is TCP-only without STUN and cannot stream to a phone outside the house. Back up a
-file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing it.
+file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing it. `go2rtc.yaml` also preloads the
+three balanced camera feeds (warm connections, so a phone's cold open is quicker): **after a camera password
+change, restart the add-on** (`ha addons restart a889bffc_go2rtc` over SSH), since the warm feeds keep the old
+credentials until then; `curl http://10.0.0.197:1984/api/preload` should then show bytes flowing for all three.
 
 ## The owner's dashboard (editable over the API too)
 
