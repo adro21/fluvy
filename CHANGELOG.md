@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.21] — 2026-10-10
+
 ### Added
 
 - **Live video in the camera card.** `live: true` puts the video itself in the picture — Home Assistant's own
