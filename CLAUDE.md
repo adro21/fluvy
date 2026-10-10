@@ -44,6 +44,9 @@ and explain in plain language.
   the app — that is how 1.5.12's sideways-scroll fix was found. Remove it in the next release.
 - Known flake: `packages/cards/src/panel/panel.test.ts` ("shows the screensaver…") waits a fixed 80 ms for a lazy
   import and can fail when every package tests at once. Rerun `pnpm check`; it is not a real failure.
+  (`fine-adjust.test.ts` failed the same way on the media card during the 1.5.22 and 1.5.24 releases — it created the
+  card before the lazily imported media family had landed; fixed in 1.5.25 with a `beforeAll(() => familiesDefined)`.
+  A test that mounts a weather, media or energy card must wait that way.)
 
 ## Release procedure (what worked on 2026-10-07 for 1.5.1; 1.5.14–1.5.18 on 2026-10-09)
 

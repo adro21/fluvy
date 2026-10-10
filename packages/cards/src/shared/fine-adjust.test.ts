@@ -1,10 +1,13 @@
 // @vitest-environment happy-dom
-import { afterAll, afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { HomeAssistant } from '@fluvy/core';
 import { familiesDefined } from '../index.js';
 
 // the index fetches the media and energy families: they land before this file's page goes
 afterAll(() => familiesDefined);
+// the media card is one of them: created before its family lands (every package testing at once), it is a bare
+// tag without setConfig — so the families come first
+beforeAll(() => familiesDefined);
 
 const state = (entity_id: string, state: string, attributes: Record<string, unknown>) => ({
   entity_id,

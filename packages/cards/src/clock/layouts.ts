@@ -45,6 +45,16 @@ export interface ClockModel {
 const BIG = { font: 64, line: 72, unit: 24, gap: 8 } as const;
 /** The scales a clock may ask for, largest first: an asked scale steps down to the first whose digits fit. */
 const SCALES = [4, 3, 2, 1.5, 1] as const;
+/** The caption under the digits, at the sheet's size. */
+const CAPTION = { font: 14, line: 20, gap: 16 } as const;
+/** The caption grows with the digits, half as fast: twice the sheet's digits read with a caption half as big again. */
+const captionScale = (scale: number): number => (1 + scale) / 2;
+/** The caption's own sizes for grown digits (nothing at the sheet's: the class has them). */
+function captionStyle(scale: number): string | typeof nothing {
+  if (scale === 1) return nothing;
+  const c = captionScale(scale);
+  return `font-size:${CAPTION.font * c}px;line-height:${CAPTION.line * c}px;height:${CAPTION.line * c}px;margin-top:${CAPTION.gap * c}px`;
+}
 
 type Part = TemplateResult | typeof nothing;
 
@@ -179,11 +189,13 @@ export function heroDigital(m: ClockModel): TemplateResult {
   const beside = m.width - 64 - 8;
   if (m.sky && row === nothing && fits(beside)(all[0] ?? '')) {
     const { sky } = m;
-    const line = caption(m, beside, false);
     const { scale } = sized(beside);
+    const used = fits(beside, scale)(all[0] ?? '') ? scale : 1;
+    // the caption is measured at the sheet's size: a grown caption has that much less of the width
+    const line = caption(m, beside / captionScale(used), false);
     return html`<div class="ck-split">
       <div>
-        ${big(time, all[0] ?? '', fits(beside, scale)(all[0] ?? '') ? scale : 1)}${line ? html`<p class="ck-caption ck-caption--left" data-baseline="dt">${line}</p>` : nothing}
+        ${big(time, all[0] ?? '', used)}${line ? html`<p class="ck-caption ck-caption--left" data-baseline="dt" style=${captionStyle(used)}>${line}</p>` : nothing}
       </div>
       <div class="ck-split__side">
         ${ico(sky.glyph, sky.ok ? m.tone : 'off', { hero: true })}
@@ -195,11 +207,12 @@ export function heroDigital(m: ClockModel): TemplateResult {
     </div>`;
   }
 
-  const line = caption(m, m.width, true);
   const { scale, unit } = sized(m.width);
+  const line = caption(m, m.width / captionScale(scale), true);
   return html`
     ${big(time, unit, scale)}
-    ${line ? html`<p class="ck-caption ck-caption--left">${line}</p>` : nothing} ${row}
+    ${line ? html`<p class="ck-caption ck-caption--left" style=${captionStyle(scale)}>${line}</p>` : nothing}
+    ${row}
   `;
 }
 

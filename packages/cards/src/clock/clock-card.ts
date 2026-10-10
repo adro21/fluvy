@@ -73,7 +73,8 @@ export interface ClockCardConfig extends FluvyCardConfig {
   frame?: boolean;
   /**
    * The digital hero's digits: the sheet's 64 px (`normal`), half as big again (`large`), twice (`huge`) or four
-   * times (`giant`, for a wall seen across a room). A size the width cannot hold steps down to the largest that fits.
+   * times (`giant`, for a wall seen across a room); the caption under them grows half as fast. A size the width
+   * cannot hold steps down to the largest that fits.
    */
   size?: 'normal' | 'large' | 'huge' | 'giant';
   /** Test hook (undocumented): an ISO instant that freezes the clock, so a render can be held against the sheet. */
@@ -114,7 +115,8 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     const padding = config.frame === false ? 40 : 0; // bare: the card's 20 px above and below are gone
     if (config.variant === 'side') return (weather ? 268 : 208) - padding;
     if (config.face === 'digital') {
-      const grown = 72 * ((isSize(config.size) ? SCALE[config.size] : 1) - 1); // the 72 line, scaled
+      // the 72 line scaled, and the 20 caption growing half as fast (10 a step)
+      const grown = 82 * ((isSize(config.size) ? SCALE[config.size] : 1) - 1);
       return (weather && config.show_forecast !== false ? 196 : 136) - padding + grown;
     }
     return (weather ? 352 : 340) - padding;
@@ -296,7 +298,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
     if (look === 'tile') return 4;
     const row = this.config?.weather && this.config.show_forecast !== false ? 1 : 0;
     if (look === 'side') return (this.analog ? 4 : 3) + row;
-    const grown = this.analog ? 0 : Math.ceil((72 * (this.scale - 1)) / 50); // the digits' extra height, in rows
+    const grown = this.analog ? 0 : Math.ceil((82 * (this.scale - 1)) / 50); // the digits' and caption's extra height, in rows
     return (this.analog ? 7 : 3) + row + grown;
   }
 

@@ -93,11 +93,22 @@ describe('the clock’s size', () => {
     expect(large.style.fontSize).toBe('96px');
   });
 
-  it('giant makes the digits four times the sheet’s', async () => {
-    const giant = big(await clock({ face: 'digital', size: 'giant' }));
+  it('giant makes the digits four times the sheet’s, and the caption under them half as big again twice over', async () => {
+    const card = await clock({ face: 'digital', size: 'giant', show_date: true });
+    const giant = big(card);
     expect(giant.style.fontSize).toBe('256px');
     expect(giant.style.lineHeight).toBe('288px');
     expect(giant.querySelector<HTMLElement>('.ck-big__unit')!.style.fontSize).toBe('96px');
+    const caption = card.shadowRoot!.querySelector<HTMLElement>('.ck-caption')!;
+    expect(caption.style.fontSize).toBe('35px');
+    expect(caption.style.lineHeight).toBe('50px');
+  });
+
+  it('keeps the caption at the sheet’s size with the digits', async () => {
+    const card = await clock({ face: 'digital', show_date: true });
+    expect(
+      card.shadowRoot!.querySelector<HTMLElement>('.ck-caption')!.getAttribute('style'),
+    ).toBeNull();
   });
 
   it('is for the digital hero only: an analog face and a tile keep theirs', async () => {
@@ -120,13 +131,13 @@ describe('the clock’s size', () => {
         face: 'digital',
         size: 'huge',
       }),
-    ).toBe(normal + 72);
+    ).toBe(normal + 82);
     expect(
       FluvyClockCard.layoutHeight({
         type: 'custom:fluvy-clock-card',
         face: 'digital',
         size: 'large',
       }),
-    ).toBe(normal + 36);
+    ).toBe(normal + 41);
   });
 });

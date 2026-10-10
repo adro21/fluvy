@@ -5,6 +5,11 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The clock's date grows with its digits.** The line under a `large`, `huge` or `giant` time is bigger too, half as
+  fast as the digits: 35 px under the screensaver's 256 px time on the wall tablet.
+
 ## [1.5.24] — 2026-10-10
 
 ### Added
