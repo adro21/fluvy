@@ -225,7 +225,7 @@ export function createWall(deps: WallDeps): WallHandle {
         dim: settings.dim,
         weather,
         hass: deps.hass,
-        onWake: () => idle?.poke(),
+        onWake: wakeUp,
       });
     });
   };
@@ -235,6 +235,11 @@ export function createWall(deps: WallDeps): WallHandle {
     closeSaver = undefined;
     if (phase === 'asleep') setPhase('awake');
     veil();
+  };
+  /** A touch, a button, an automation: awake now (a sleep a button asked for is not the idle timer's), and the timer re-armed. */
+  const wakeUp = (): void => {
+    awake();
+    idle?.poke();
   };
 
   const leaveWall = (): void => {
@@ -361,6 +366,13 @@ export function createWall(deps: WallDeps): WallHandle {
   const onLocation = (): void => evaluate();
   win.addEventListener('location-changed', onLocation);
   win.addEventListener('popstate', onLocation);
+  // a dashboard's own button: Home Assistant's `fire-dom-event` action carrying `fluvy: sleep` (or `wake`)
+  const onCustom = (event: Event): void => {
+    const detail = (event as CustomEvent<{ fluvy?: unknown } | null>).detail;
+    if (detail?.fluvy === 'sleep') sleep();
+    else if (detail?.fluvy === 'wake') wakeUp();
+  };
+  win.addEventListener('ll-custom', onCustom);
   const offSettings = deps.onSettings(evaluate);
   // Home Assistant's panels arrive with its connection: look again until they are there
   let tries = 0;
@@ -382,10 +394,11 @@ export function createWall(deps: WallDeps): WallHandle {
     resume,
     exit,
     sleep,
-    wake: () => idle?.poke(),
+    wake: wakeUp,
     stop: () => {
       win.removeEventListener('location-changed', onLocation);
       win.removeEventListener('popstate', onLocation);
+      win.removeEventListener('ll-custom', onCustom);
       offSettings();
       win.clearTimeout(resumeTimer);
       win.clearTimeout(leftTimer);

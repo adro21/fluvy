@@ -131,6 +131,29 @@ describe('the wall controller', () => {
     wall.stop();
   });
 
+  it('sleeps on a dashboard’s fire-dom-event with fluvy: sleep; fluvy: wake or a touch ends it', async () => {
+    const { wall, shown, wake } = setup({ after: 10 });
+    const fire = (fluvy: string): void => {
+      window.dispatchEvent(
+        new CustomEvent('ll-custom', { detail: { action: 'fire-dom-event', fluvy } }),
+      );
+    };
+    fire('sleep');
+    await vi.advanceTimersByTimeAsync(1);
+    expect(wall.phase()).toBe('asleep');
+    expect(shown.sleep).toBe(1);
+    fire('wake');
+    expect(wall.phase()).toBe('awake');
+    expect(shown.closed).toBe(1);
+    fire('sleep');
+    await vi.advanceTimersByTimeAsync(1);
+    expect(wall.phase()).toBe('asleep');
+    wake(); // the screensaver’s touch, after a sleep the idle timer did not ask for
+    expect(wall.phase()).toBe('awake');
+    expect(shown.closed).toBe(2);
+    wall.stop();
+  });
+
   it('pauses on the corner’s hold (the chrome back, the toast), resumes by hand or when the screensaver would come', async () => {
     const { wall, shown } = setup({ after: 5 });
     wall.pause();
