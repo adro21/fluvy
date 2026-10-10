@@ -98,6 +98,17 @@ node tools/dev/ha.mjs status            # confirm "Loaded: X.Y.Z" and the resour
 
 Then tell the owner to hard-refresh the browser (Cmd + Shift + R).
 
+## The house itself (SSH, since 2026-10-10)
+
+The Home Assistant box (HAOS in a VirtualBox VM, reserved at 10.0.0.197) runs the *Terminal & SSH* add-on, key-only
+with the Mac's `~/.ssh/id_rsa`: `ssh root@homeassistant.local`. That is how files in `/config` are written
+(`configuration.yaml`, `go2rtc.yaml`); `ha core check` and `ha addons logs <slug>` work there. The add-on has its own
+network namespace: reach host ports as `10.0.0.197:<port>`, never `127.0.0.1`. Live video goes through the **go2rtc
+add-on** (`a889bffc_go2rtc`, configured in `/config/go2rtc.yaml`, WebRTC on 18555 TCP+UDP, forwarded by the router,
+`candidates: [stun:18555]` for the public address) with `go2rtc: url: http://127.0.0.1:1984` in `configuration.yaml`;
+Home Assistant's built-in go2rtc is TCP-only without STUN and cannot stream to a phone outside the house. Back up a
+file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing it.
+
 ## The owner's dashboard (editable over the API too)
 
 The dashboard at `/fluvy-auto` is a **taken-over copy** of the automatic one: plain views and sections stored by
