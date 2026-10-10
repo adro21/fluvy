@@ -5,6 +5,11 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **The camera's full-screen view fills the screen.** Home Assistant's player keeps a band free for the pop-up it
+  was made for; the view lifts that and lets the picture cover the screen, as does the live picture in the card.
+
 ## [1.5.21] — 2026-10-10
 
 ### Added

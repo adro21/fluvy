@@ -243,6 +243,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
         height: 100%;
         overflow: hidden;
         background: var(--fluvy-neutral-05);
+        --video-max-height: none; /* the player's cap, made for the pop-up */
       }
       .dv-cam:fullscreen {
         border-radius: 0;

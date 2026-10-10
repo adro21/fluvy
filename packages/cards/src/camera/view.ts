@@ -20,15 +20,19 @@ export class FluvyCameraView extends LitElement {
       position: fixed;
       inset: 0;
       z-index: 8;
-      display: grid;
-      place-items: center;
+      display: block;
       background: #000;
       -webkit-tap-highlight-color: transparent;
     }
+    /* the player fills the screen: no aspect ratio given, so its video takes the whole height, and its own cap
+       on that height (made for the pop-up) lifted; cover crops a sliver rather than leaving bands */
     ha-camera-stream {
+      position: absolute;
+      inset: 0;
       display: block;
       width: 100%;
-      max-height: 100%;
+      height: 100%;
+      --video-max-height: none;
     }
     .leave {
       position: fixed;
@@ -116,7 +120,7 @@ export class FluvyCameraView extends LitElement {
         muted
         .hass=${this.hass}
         .stateObj=${this.stateObj}
-        .fitMode=${'contain'}
+        .fitMode=${'cover'}
       ></ha-camera-stream>
       <button class="leave" aria-label=${label} title=${label} @click=${() => this.close()}>
         <span class="disc">${glyph('close')}</span>
