@@ -1307,7 +1307,8 @@
     "water": "Su",
     "gas": "Gaz",
     "normal": "Normal",
-    "huge": "Devasa"
+    "huge": "Devasa",
+    "giant": "Dev"
   },
   "tone": {
     "accent": "Vurgu",

@@ -4,7 +4,7 @@ import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 
 /*
  * The screensaver: a modal dialog in the browser's top layer (over every dialog of Home Assistant's), the wall's
- * background — or black — with the clock and the weather in a 480 column, or nothing. The touch that wakes the
+ * background — or black — with the clock and the weather at a size read across a room, or nothing. The touch that wakes the
  * wall ends here: it reaches no card. Escape does not close it (the wall has no keyboard); a touch does.
  */
 export class FluvyWallScreensaver extends LitElement {
@@ -52,7 +52,7 @@ export class FluvyWallScreensaver extends LitElement {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        width: min(480px, 100vw - 32px);
+        width: min(1120px, 100vw - 64px);
         min-height: 100%;
         margin: 0 auto;
         padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
@@ -112,6 +112,7 @@ export class FluvyWallScreensaver extends LitElement {
         face: 'digital',
         variant: 'hero',
         show_date: true,
+        size: 'giant', // four times the sheet's digits where the screen holds them, else the largest that fits
         ...(this.weather ? { weather: this.weather, show_forecast: false } : {}),
       } as never);
       card.setAttribute('still', '');

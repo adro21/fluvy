@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The screensaver's clock is read across the room.** Its digits are four times the sheet's where the screen
+  holds them (256 px on the wall tablet), stepping down to the largest size that fits on a narrower screen. The
+  clock card gains the same `size: giant`.
+
 ## [1.5.22] — 2026-10-10
 
 ### Fixed

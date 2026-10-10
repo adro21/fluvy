@@ -44,7 +44,7 @@ export interface ClockModel {
 /** The sheet's big digits: 64 on a 72 line, the unit 24 with 8 before it. A scale multiplies all four. */
 const BIG = { font: 64, line: 72, unit: 24, gap: 8 } as const;
 /** The scales a clock may ask for, largest first: an asked scale steps down to the first whose digits fit. */
-const SCALES = [2, 1.5, 1] as const;
+const SCALES = [4, 3, 2, 1.5, 1] as const;
 
 type Part = TemplateResult | typeof nothing;
 

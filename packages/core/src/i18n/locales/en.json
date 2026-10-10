@@ -1307,7 +1307,8 @@
     "water": "Water",
     "gas": "Gas",
     "normal": "Normal",
-    "huge": "Huge"
+    "huge": "Huge",
+    "giant": "Giant"
   },
   "tone": {
     "accent": "Accent",

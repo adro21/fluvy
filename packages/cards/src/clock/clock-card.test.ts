@@ -93,6 +93,13 @@ describe('the clock’s size', () => {
     expect(large.style.fontSize).toBe('96px');
   });
 
+  it('giant makes the digits four times the sheet’s', async () => {
+    const giant = big(await clock({ face: 'digital', size: 'giant' }));
+    expect(giant.style.fontSize).toBe('256px');
+    expect(giant.style.lineHeight).toBe('288px');
+    expect(giant.querySelector<HTMLElement>('.ck-big__unit')!.style.fontSize).toBe('96px');
+  });
+
   it('is for the digital hero only: an analog face and a tile keep theirs', async () => {
     const analog = await clock({ size: 'huge' });
     expect(analog.shadowRoot!.querySelector('.ck-big')).toBeNull();

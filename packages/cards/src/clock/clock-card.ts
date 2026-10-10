@@ -71,8 +71,11 @@ export interface ClockCardConfig extends FluvyCardConfig {
   show_date?: boolean;
   /** `false`: the hero or side clock without its card — no plate, no border, no padding — on the page itself. */
   frame?: boolean;
-  /** The digital hero's digits: the sheet's 64 px (`normal`), half as big again (`large`) or twice (`huge`). */
-  size?: 'normal' | 'large' | 'huge';
+  /**
+   * The digital hero's digits: the sheet's 64 px (`normal`), half as big again (`large`), twice (`huge`) or four
+   * times (`giant`, for a wall seen across a room). A size the width cannot hold steps down to the largest that fits.
+   */
+  size?: 'normal' | 'large' | 'huge' | 'giant';
   /** Test hook (undocumented): an ISO instant that freezes the clock, so a render can be held against the sheet. */
   _now?: string;
 }
@@ -82,7 +85,7 @@ const CORE_LABELS = {
   show_seconds: 'editor.seconds',
 } as const;
 /** The digital hero's digit scale by `size`. */
-const SCALE = { normal: 1, large: 1.5, huge: 2 } as const;
+const SCALE = { normal: 1, large: 1.5, huge: 2, giant: 4 } as const;
 const isSize = (value: unknown): value is keyof typeof SCALE =>
   typeof value === 'string' && value in SCALE;
 
@@ -247,7 +250,7 @@ export class FluvyClockCard extends Card<ClockCardConfig> {
         ),
         grid(
           selectField('numerals', ['none', 'quarters', 'all']),
-          selectField('size', ['normal', 'large', 'huge']),
+          selectField('size', ['normal', 'large', 'huge', 'giant']),
         ),
         textField('title'),
         boolField('show_seconds'),
