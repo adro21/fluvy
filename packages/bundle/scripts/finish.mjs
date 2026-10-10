@@ -90,7 +90,8 @@ for (const name of initial) {
     process.exit(1);
   }
 }
-const BUDGET = 220 * 1024;
+// 224 since 1.5.21: the camera's live view (the player's host, the full-screen view's element) is loaded by every page
+const BUDGET = 224 * 1024;
 const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
 console.log(
   `Fluvy v${version} · build ${build} · every page ${kb(gzip(initial))} gzip (budget ${BUDGET / 1024} KB: ${[...initial].join(' + ')})`,

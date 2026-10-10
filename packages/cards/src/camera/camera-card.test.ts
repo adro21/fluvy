@@ -111,3 +111,56 @@ describe('the camera’s compact style', () => {
     expect(FluvyCameraCard.keys).toContain('variant');
   });
 });
+
+describe('live video', () => {
+  // Home Assistant's player is not here: a bare element stands in for it
+  if (!customElements.get('ha-camera-stream'))
+    customElements.define('ha-camera-stream', class extends HTMLElement {});
+
+  type Player = HTMLElement & { stateObj?: { entity_id: string }; hass?: unknown };
+
+  it('puts Home Assistant’s player in the picture, muted, and keeps the live pill without the time', async () => {
+    const card = await camera({ live: true });
+    const player = root(card).querySelector('ha-camera-stream') as Player | null;
+    expect(player).not.toBeNull();
+    expect(player!.hasAttribute('muted')).toBe(true);
+    expect(player!.stateObj?.entity_id).toBe('camera.driveway');
+    expect(root(card).querySelector('.dv-cam__live')).not.toBeNull();
+    expect(root(card).querySelector('.dv-cam__time')).toBeNull();
+    expect(root(card).querySelector('.fv-plate__img')).toBeNull();
+  });
+
+  it('is the name on the video in the compact style', async () => {
+    const card = await camera({ live: true, variant: 'compact' });
+    expect(root(card).querySelector('ha-camera-stream')).not.toBeNull();
+    const pill = root(card).querySelector('.dv-cam__name');
+    expect(pill?.textContent).toContain('Driveway');
+    expect(pill?.classList.contains('is-stale')).toBe(false);
+  });
+
+  it('fills the screen on a tap and leaves on the × or Escape', async () => {
+    const card = await camera({ live: true });
+    (root(card).querySelector('.dv-cam__tap') as HTMLElement).click();
+    const viewer = document.querySelector('fluvy-camera-view') as
+      (HTMLElement & { updateComplete: Promise<boolean> }) | null;
+    expect(viewer).not.toBeNull();
+    await viewer!.updateComplete;
+    const inside = viewer!.shadowRoot!;
+    expect((inside.querySelector('ha-camera-stream') as Player).stateObj?.entity_id).toBe(
+      'camera.driveway',
+    );
+    (inside.querySelector('.leave') as HTMLElement).click();
+    expect(document.querySelector('fluvy-camera-view')).toBeNull();
+
+    (root(card).querySelector('.dv-cam__tap') as HTMLElement).click();
+    expect(document.querySelector('fluvy-camera-view')).not.toBeNull();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(document.querySelector('fluvy-camera-view')).toBeNull();
+  });
+
+  it('shows live in the editor', () => {
+    const names = JSON.stringify(FluvyCameraCard.getConfigForm().schema);
+    expect(names).toContain('"name":"live"');
+    expect(FluvyCameraCard.keys).toContain('live');
+  });
+});

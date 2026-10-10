@@ -367,6 +367,7 @@
     "title": "Title",
     "subtitle": "Subtitle",
     "variant": "Style",
+    "live": "Live video",
     "face": "Face",
     "hours": "Hours of history",
     "min": "Minimum",

@@ -119,7 +119,7 @@ const CATALOGUE: ReadonlyArray<
     'fluvy-camera-card',
     FluvyCameraCard,
     'Fluvy · Camera',
-    'A still that refreshes itself, with live and time pills; tap for the stream. Compact: the picture alone, its name on it.',
+    'A still that refreshes itself, with live and time pills; tap for the stream. Live: the video itself, a tap fills the screen. Compact: the picture alone, its name on it.',
   ],
   [
     'fluvy-sensor-card',

@@ -6,7 +6,7 @@ import type {
   WallUi,
 } from '@fluvy/core';
 import { FluvyWallCorner } from './corner.js';
-import { wallHost } from './host.js';
+import { wallHost } from '../shared/host.js';
 import { FluvyWallScreensaver } from './screensaver.js';
 import { FluvyWallToast } from './toast.js';
 

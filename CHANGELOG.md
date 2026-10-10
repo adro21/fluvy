@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Live video in the camera card.** `live: true` puts the video itself in the picture — Home Assistant's own
+  player, muted — in place of the stills that refresh, in the full card and the compact one alike. A tap fills the
+  screen with the camera; a × on a disc in the corner, the one a wall shows, closes it, as does Escape.
+
 ## [1.5.20] — 2026-10-09
 
 ### Added

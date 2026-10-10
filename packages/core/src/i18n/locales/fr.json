@@ -367,6 +367,7 @@
     "title": "Titre",
     "subtitle": "Sous-titre",
     "variant": "Style",
+    "live": "Vidéo en direct",
     "face": "Cadran",
     "hours": "Heures d’historique",
     "min": "Minimum",

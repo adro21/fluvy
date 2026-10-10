@@ -43,6 +43,9 @@ import { configKeys, ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
 import { toneOf } from '../shared/colour.js';
 import { Crossfade } from '../shared/crossfade.js';
 import { listLength, ROW } from '../shared/heights.js';
+import { wallHost } from '../shared/host.js';
+import type { FluvyCameraView } from './view.js';
+import './view.js';
 
 const s = strings('camera');
 
@@ -56,6 +59,11 @@ export interface CameraCardConfig extends RowsCardConfig {
    * thumbnail that may sit a third of a section wide.
    */
   variant?: CameraVariant;
+  /**
+   * The video itself in the picture — Home Assistant's own player, muted — instead of stills that refresh; a tap
+   * fills the screen with it, a × in the corner closes. Default: stills.
+   */
+  live?: boolean;
   /** Seconds between two stills (1–300, default 10). */
   refresh?: number;
   /** Second line of the head ("Front of house · 1080p"). Default: area and state. */
@@ -66,6 +74,25 @@ export interface CameraCardConfig extends RowsCardConfig {
 const STALL_MS = 30_000;
 /** This many failures in a row and the last good frame stops standing in for the camera. */
 const GIVE_UP = 3;
+
+let playerAsked = false;
+/**
+ * Home Assistant defines its player with its own picture cards, which a dashboard of Fluvy cards alone never
+ * fetches; asking its card helpers for a picture card once brings the definition, and the players already on the
+ * page upgrade in place.
+ */
+function askForPlayer(entity: string): void {
+  if (playerAsked || customElements.get('ha-camera-stream')) return;
+  playerAsked = true;
+  const helpers = (
+    window as unknown as {
+      loadCardHelpers?: () => Promise<{ createCardElement(config: unknown): unknown }>;
+    }
+  ).loadCardHelpers;
+  helpers?.()
+    .then((h) => h.createCardElement({ type: 'picture-entity', entity, camera_view: 'live' }))
+    .catch(() => undefined);
+}
 
 /**
  * The camera: a 16:9 still that refreshes itself, the live and time pills inside the picture and
@@ -206,6 +233,17 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       .dv-card--compact .dv-cam__off p {
         display: none;
       }
+      /* live: Home Assistant's player fills the plate behind the pills */
+      .dv-cam__video {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--fluvy-neutral-05);
+      }
       .dv-cam:fullscreen {
         border-radius: 0;
         background: var(--fluvy-neutral-05);
@@ -254,6 +292,8 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   /** When the request now in flight was made; 0 when there is none. */
   private inFlight = 0;
   private failures = 0;
+  /** The full-screen view this card opened, while it is up. */
+  private viewer: FluvyCameraView | undefined;
 
   constructor() {
     super();
@@ -264,6 +304,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
 
   static override keys = configKeys<CameraCardConfig>()([
     'variant',
+    'live',
     'rows',
     'show_rows',
     'refresh',
@@ -284,7 +325,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
         nameIconFields(),
         selectField('variant', VARIANTS),
         fieldRow(textField('subtitle'), numberField('refresh', 1, 300)),
-        boolField('show_rows'),
+        fieldRow(boolField('live'), boolField('show_rows')),
         entitiesField('rows'),
         colourFields(),
         actionFields(),
@@ -310,6 +351,9 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
 
   private get compact(): boolean {
     return this.config?.variant === 'compact';
+  }
+  private get live(): boolean {
+    return this.config?.live === true;
   }
 
   override getCardSize(): number {
@@ -346,6 +390,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
     this.observer?.disconnect();
     this.observer = undefined;
     this.stop();
+    this.viewer?.close(); // the card went (another page): the view it opened goes with it
   }
 
   private readonly onTabChange = (): void => {
@@ -366,6 +411,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
     const view = this.entity();
     const wanted =
       this.isConnected &&
+      !this.live &&
       this.onScreen &&
       this.inFront &&
       Boolean(this.hass) &&
@@ -405,6 +451,10 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed);
     if (changed.has('hass') || changed.has('config')) this.sync();
+    if (this.viewer && changed.has('hass')) {
+      this.viewer.hass = this.hass;
+      this.viewer.stateObj = this.entity().stateObj;
+    }
   }
 
   /* ---------- actions ---------- */
@@ -415,6 +465,23 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       return;
     } // the dialog would open behind the picture
     this.tap(this.config?.entity, { action: 'more-info' });
+  }
+
+  /** Live: the camera fills the screen, the × in the corner closes. */
+  private open(): void {
+    if (this.viewer) return;
+    const view = this.entity();
+    if (!view.stateObj) return;
+    haptic(this, 'light');
+    const viewer = document.createElement('fluvy-camera-view') as FluvyCameraView;
+    viewer.hass = this.hass;
+    viewer.stateObj = view.stateObj;
+    viewer.onClose = () => {
+      viewer.remove();
+      if (this.viewer === viewer) this.viewer = undefined;
+    };
+    this.viewer = viewer;
+    wallHost(document).append(viewer);
   }
 
   private fullscreen(): void {
@@ -447,8 +514,11 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       return this.renderEmpty(`${name} · ${stateText(this.hass, view)}`);
 
     const unusable = view.status !== 'ok';
-    const off = unusable || this.failed_ || !view.attr<string | null>('entity_picture');
+    const live = this.live;
+    const off =
+      unusable || (!live && (this.failed_ || !view.attr<string | null>('entity_picture')));
     const compact = this.compact;
+    if (live && !off) askForPlayer(view.id);
     const width = compact ? this.width : this.contentWidth; // compact: the picture bleeds to the card's edges
     const height = Math.round((width * 9) / 16 / 4) * 4; // 16:9, landed on the 4 px grid
     const offH = compact ? 24 : 76; // the off skin: the glyph alone in a thumbnail
@@ -477,42 +547,72 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
             })
       }
       <div class="dv-cam fv-plate ${off ? 'is-off' : ''}" style="height:${height}px">
-        ${this.frames.render()}
+        ${
+          live
+            ? html`<ha-camera-stream
+                class="dv-cam__video"
+                muted
+                data-measure="skip"
+                .hass=${this.hass}
+                .stateObj=${view.stateObj}
+                .fitMode=${'cover'}
+              ></ha-camera-stream>`
+            : this.frames.render()
+        }
         ${
           off
             ? html`<div class="dv-cam__off" style="top:${offTop}px;height:${offH}px">
                 <span class="fv-ico fv-ico--off" data-icon>${glyph('camera')}</span>
                 <p>${unusable ? stateText(this.hass, view) : s(this.hass, 'offline')}</p>
               </div>`
-            : !this.stamp_
-              ? html`<span class="fv-skeleton dv-cam__skeleton"></span>`
-              : html` <span class="dv-cam__shade" data-measure="skip"></span>
+            : live
+              ? html`<span class="dv-cam__shade" data-measure="skip"></span>
                   <button
                     class="dv-cam__tap"
                     data-target
                     aria-label=${s(this.hass, 'view', { name })}
-                    @click=${() => this.moreInfo()}
+                    @click=${() => this.open()}
                   ></button>
                   ${
                     compact
                       ? nothing
-                      : html`<span
-                            class="dv-cam__pill dv-cam__live ${this.stale_ ? 'is-stale' : ''}"
+                      : html`<span class="dv-cam__pill dv-cam__live"
                             ><i></i>${s(this.hass, 'live')}</span
                           >
-                          <span class="dv-cam__pill dv-cam__time">${this.clock()}</span>
                           <div class="dv-cam__actions">
                             ${round('snapshot', 'quiet', s(this.hass, 'snapshot'), () => this.moreInfo())}
-                            ${round('expand', 'quiet', s(this.hass, 'fullscreen'), () =>
-                              this.fullscreen(),
-                            )}
+                            ${round('expand', 'quiet', s(this.hass, 'fullscreen'), () => this.open())}
                           </div>`
                   }`
+              : !this.stamp_
+                ? html`<span class="fv-skeleton dv-cam__skeleton"></span>`
+                : html` <span class="dv-cam__shade" data-measure="skip"></span>
+                    <button
+                      class="dv-cam__tap"
+                      data-target
+                      aria-label=${s(this.hass, 'view', { name })}
+                      @click=${() => this.moreInfo()}
+                    ></button>
+                    ${
+                      compact
+                        ? nothing
+                        : html`<span
+                              class="dv-cam__pill dv-cam__live ${this.stale_ ? 'is-stale' : ''}"
+                              ><i></i>${s(this.hass, 'live')}</span
+                            >
+                            <span class="dv-cam__pill dv-cam__time">${this.clock()}</span>
+                            <div class="dv-cam__actions">
+                              ${round('snapshot', 'quiet', s(this.hass, 'snapshot'), () => this.moreInfo())}
+                              ${round('expand', 'quiet', s(this.hass, 'fullscreen'), () =>
+                                this.fullscreen(),
+                              )}
+                            </div>`
+                    }`
         }
         ${
           compact
             ? html`<span
-                class="dv-cam__pill dv-cam__name ${this.stale_ || !this.stamp_ ? 'is-stale' : ''}"
+                class="dv-cam__pill dv-cam__name ${!live && (this.stale_ || !this.stamp_) ? 'is-stale' : ''}"
                 data-fit="16"
                 ><i></i><span>${name}</span></span
               >`
