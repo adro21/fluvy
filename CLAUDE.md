@@ -110,10 +110,14 @@ network namespace: reach host ports as `10.0.0.197:<port>`, never `127.0.0.1`. L
 add-on** (`a889bffc_go2rtc`, configured in `/config/go2rtc.yaml`, WebRTC on 18555 TCP+UDP, forwarded by the router,
 `candidates: [stun:18555]` for the public address) with `go2rtc: url: http://127.0.0.1:1984` in `configuration.yaml`;
 Home Assistant's built-in go2rtc is TCP-only without STUN and cannot stream to a phone outside the house. Back up a
-file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing it. `go2rtc.yaml` also preloads the
-three balanced camera feeds (warm connections, so a phone's cold open is quicker): **after a camera password
-change, restart the add-on** (`ha addons restart a889bffc_go2rtc` over SSH), since the warm feeds keep the old
-credentials until then; `curl http://10.0.0.197:1984/api/preload` should then show bytes flowing for all three.
+file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing it. `go2rtc.yaml` carries explicit
+`_sub`, `_main` and `_ext` streams (with an opus audio transcoder) for each of the **four** Reolink cameras on the NVR at
+10.0.0.94 (Backyard, Driveway, Porch, and since 2026-10-16 "Access", NVR channel 3, entities `*.access_*`). Its
+`preload:` block was found **empty** on 2026-10-17 (the notes from 2026-10-10 said it kept the balanced feeds warm; nothing
+records who emptied it) — ask the owner before refilling it. **After a camera password change, restart the add-on**
+(`ha addons restart a889bffc_go2rtc` over SSH) so go2rtc drops the old credentials. Adding a camera: see the
+`access-camera` memory note (channel ↔ uid from the NVR's `GetChannelstatus`, rename device and entities, enable the
+balanced/clear streams, add the three stream blocks, clone the Backyard card on every dashboard).
 
 ## The owner's dashboard (editable over the API too)
 
@@ -129,11 +133,29 @@ node tools/dev/ha.mjs ws "$(python3 -c "import json; print(json.dumps({'type':'l
 Always save a copy of the whole configuration in `~/.config/fluvy/` before writing (the Lights tab's previous and
 current layouts are there, `dashboard-fluvy-auto-backup-*.json` and `dashboard-fluvy-auto-lights-v1.json`). The
 Lights tab was rebuilt on 2026-10-07 as one card per room (`docs/plans/2026-10-07-lights-tab-layout-design.md`).
-A Chrome tab (the browser tools) is the way to look at the result; close it afterwards. Two more dashboards
+A Chrome tab (the browser tools) is the way to look at the result; close it afterwards. Three more dashboards
 exist: `/fluvy-wall`, the wall tablet's (a Samsung Galaxy Tab A11+, landscape, about 1280 × 800): a hand-made copy of
-the main Home with a chips row of tabs, since wall mode hides the header; and `/fluvy-test`, a trial glance-first
-Home (`docs/plans/2026-10-07-glanceable-home-test-design.md`). The TV is left off every dashboard at the owner's
+the main Home with a chips row of tabs, since wall mode hides the header; `/fluvy-mobile` ("Phone"), the iPhone's
+one-column dashboard (`docs/plans/2026-10-09-phone-dashboard.md`) with the four camera thumbnails on top and a
+`live-<camera>` page per camera; and `/fluvy-test`, a trial glance-first Home
+(`docs/plans/2026-10-07-glanceable-home-test-design.md`). A change that touches cameras or weather goes to all four.
+Weather on every dashboard is Environment Canada's `weather.richmond_hill_forecast` (since 2026-10-14; Met.no's
+`weather.forecast_home` is still installed, unused). The TV is left off every dashboard at the owner's
 request. Say so before restarting Home Assistant or resizing browser windows.
+
+## Reaching the house from outside (how the phone gets in)
+
+`https://adro21-home.ignorelist.com` (FreeDNS dynamic name) → the Rogers Ignite gateway at 10.0.0.1 → TCP 443 → Caddy on the
+MacBook Pro (10.0.0.20; ZeroSSL certificate, auto-renewed) → Home Assistant at 10.0.0.197:80. Port 18555 is forwarded to
+the HA box for go2rtc's WebRTC. No Nabu Casa, no `http:` block in `configuration.yaml`, no external URL set. Scrypted
+and Homebridge on the Pro reach the phone through their own clouds, so "they still work" says nothing about the forward.
+When the phone cannot reach HA from outside (2026-10-16): check, in order, `dig +short adro21-home.ignorelist.com`
+against `curl -s https://api.ipify.org`; the certificate with `openssl s_client -servername <name> -connect 10.0.0.20:443`;
+Caddy → HA with `curl -k --resolve <name>:443:10.0.0.20 https://<name>/api/` (401 means HA answered); then port 443 from
+outside with check-host.net's JSON API (`/check-tcp?host=<ip>:443`, then `/check-result/<id>`). The gateway does NAT
+loopback (`nc -z -G 3 <public ip> 18555` works from inside), so a timeout on 443 means the forward is gone: the owner
+re-adds *TCP 443 → 10.0.0.20* in the Ignite HomeConnect app (Connect → See Network → Advanced Settings → Port Forwarding);
+that gateway drops rules after reboots and firmware updates. This Mac cannot SSH into the Pro.
 
 ## Verifying in the owner's browser
 
