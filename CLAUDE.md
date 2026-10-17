@@ -157,6 +157,16 @@ loopback (`nc -z -G 3 <public ip> 18555` works from inside), so a timeout on 443
 re-adds *TCP 443 → 10.0.0.20* in the Ignite HomeConnect app (Connect → See Network → Advanced Settings → Port Forwarding);
 that gateway drops rules after reboots and firmware updates. This Mac cannot SSH into the Pro.
 
+## The shades (three Automate hubs, since 2026-10-17)
+
+Every motor is on exactly one hub. The **Pulse Pro** has the four bedroom shades (`cover.shade_1/2`, `cover.drape_1/2`)
+and reaches both Apple Home and Home Assistant over Matter. Two **Pulse 2** hubs (HomeKit only) have one shade each:
+RA-Pulse-1154325 at 10.0.0.223 → `cover.living_room`, RA-Pulse-1018893 at 10.0.0.114 → `cover.front_office_shade`. Apple
+Home pairs them by their HomeKit code; Home Assistant reaches them through the HACS integration *Automate Pulse Hub v2*
+(domain `automate`), added by IP — the two addresses are not reserved in the gateway yet, so a changed lease drops that
+shade from Home Assistant only (re-add the hub with its new address). The old Pro-side copies are disabled as
+`cover.*_pulse_pro_old`. Never "Remove Accessory" on a Pro shade tile in Apple Home: it removes the whole bridge.
+
 ## Verifying in the owner's browser
 
 The Chrome tools reach the owner's logged-in Home Assistant: open `http://homeassistant.local/…` in a new tab,
