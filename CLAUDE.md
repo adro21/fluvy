@@ -157,6 +157,16 @@ loopback (`nc -z -G 3 <public ip> 18555` works from inside), so a timeout on 443
 re-adds *TCP 443 → 10.0.0.20* in the Ignite HomeConnect app (Connect → See Network → Advanced Settings → Port Forwarding);
 that gateway drops rules after reboots and firmware updates. This Mac cannot SSH into the Pro.
 
+## Apple Home cameras (Scrypted on the MacBook Pro)
+
+Apple Home's cameras come from **Scrypted** on the MacBook Pro (`https://10.0.0.20:10443`; the owner's Chrome is
+logged in), not from Home Assistant: Reolink Camera Plugin → Rebroadcast → HomeKit plugin, all four cameras on the
+NVR's `ext.bcs` RTMP stream. When Apple Home shows a fresh snapshot but only a spinner (on and off the network) while
+Home Assistant and the Reolink app play fine, restart Scrypted's **Reolink Camera Plugin** (Plugins → Reolink Camera
+Plugin → Restart Plugin): after NVR reboots it keeps a dead connection (2026-10-18, after a Reolink firmware update;
+the HomeKit log said "HomeKit Streaming RTCP timed out"; restarting the HomeKit plugin did not help). Since that
+firmware the `ext` stream is 896 × 512 H.264 at 25 fps and the main streams are 4K HEVC.
+
 ## The shades (three Automate hubs, since 2026-10-17)
 
 Every motor is on exactly one hub. The **Pulse Pro** has the four bedroom shades (`cover.shade_1/2`, `cover.drape_1/2`)
