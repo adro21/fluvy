@@ -165,7 +165,10 @@ NVR's `ext.bcs` RTMP stream. When Apple Home shows a fresh snapshot but only a s
 Home Assistant and the Reolink app play fine, restart Scrypted's **Reolink Camera Plugin** (Plugins → Reolink Camera
 Plugin → Restart Plugin): after NVR reboots it keeps a dead connection (2026-10-18, after a Reolink firmware update;
 the HomeKit log said "HomeKit Streaming RTCP timed out"; restarting the HomeKit plugin did not help). Since that
-firmware the `ext` stream is 896 × 512 H.264 at 25 fps and the main streams are 4K HEVC.
+firmware the `ext` stream is 896 × 512 H.264 at 25 fps and the main streams are 4K HEVC. Don't feed Apple Home a bigger stream: HomeKit
+video tops out at 1080p and Scrypted passes streams through, so a 2560 × 1440 H.264 main showed only its top-left
+corner (tried on Backyard on 2026-10-18 and reverted; the NVR's main cannot go below 2304 × 1296 and its `ext` stream is
+not configurable). The NVR's encoder settings before that test are in `~/.config/fluvy/nvr-enc-backup-2026-10-18.json`.
 
 ## The shades (three Automate hubs, since 2026-10-17)
 
