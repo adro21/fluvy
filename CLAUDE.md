@@ -161,7 +161,7 @@ that gateway drops rules after reboots and firmware updates. This Mac cannot SSH
 ## Apple Home cameras (Scrypted on the MacBook Pro)
 
 Apple Home's cameras come from **Scrypted** on the MacBook Pro (`https://10.0.0.20:10443`; the owner's Chrome is
-logged in), not from Home Assistant: Reolink Camera Plugin → Rebroadcast → HomeKit plugin, the cameras on the
+logged in), not from Home Assistant: Reolink Camera Plugin → Rebroadcast → HomeKit plugin, all five cameras on the
 NVR's `ext.bcs` RTMP stream. When Apple Home shows a fresh snapshot but only a spinner (on and off the network) while
 Home Assistant and the Reolink app play fine, restart Scrypted's **Reolink Camera Plugin** (Plugins → Reolink Camera
 Plugin → Restart Plugin): after NVR reboots it keeps a dead connection (2026-10-18, after a Reolink firmware update;
