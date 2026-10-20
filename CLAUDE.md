@@ -177,8 +177,8 @@ Every motor is on exactly one hub. The **Pulse Pro** has the four bedroom shades
 and reaches both Apple Home and Home Assistant over Matter. Two **Pulse 2** hubs (HomeKit only) have one shade each:
 RA-Pulse-1154325 at 10.0.0.223 → `cover.living_room`, RA-Pulse-1018893 at 10.0.0.114 on Wi‑Fi beside the shade (10.0.0.117 when on Ethernet; its radio hears the motor badly: −79 to −82 beside it, where the Living Room hub reads −68; its HomeKit side stuck on "Opening…/Closing…" when the slow motor reported mid-travel, so since 2026-10-20 Apple Home gets this shade from HA's HomeKit Bridge "HASS Bridge:21064" (only `cover.front_office_shade`) and the hub's own bridge is removed from Apple Home; keep the hub powered) → `cover.front_office_shade`. Apple
 Home pairs them by their HomeKit code; Home Assistant reaches them through the HACS integration *Automate Pulse Hub v2*
-(domain `automate`), added by IP — the two addresses are not reserved in the gateway yet, so a changed lease drops that
-shade from Home Assistant only (re-add the hub with its new address). The old Pro-side copies are disabled as
+(domain `automate`), added by IP — both addresses are reserved in the gateway (2026-10-20); if one ever changes, add a new `automate` entry at the new address,
+delete the old one and reset the devices' names and areas (the entity ids come back). The old Pro-side copies are disabled as
 `cover.*_pulse_pro_old`. Never "Remove Accessory" on a Pro shade tile in Apple Home: it removes the whole bridge.
 
 ## Verifying in the owner's browser
