@@ -111,8 +111,9 @@ add-on** (`a889bffc_go2rtc`, configured in `/config/go2rtc.yaml`, WebRTC on 1855
 `candidates: [stun:18555]` for the public address) with `go2rtc: url: http://127.0.0.1:1984` in `configuration.yaml`;
 Home Assistant's built-in go2rtc is TCP-only without STUN and cannot stream to a phone outside the house. Back up a
 file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing it. `go2rtc.yaml` carries explicit
-`_sub`, `_main` and `_ext` streams (with an opus audio transcoder) for each of the **four** Reolink cameras on the NVR at
-10.0.0.94 (Backyard, Driveway, Porch, and since 2026-10-16 "Access", NVR channel 3, entities `*.access_*`). Its
+`_sub`, `_main` and `_ext` streams (with an opus audio transcoder) for each of the **five** Reolink cameras on the NVR at
+10.0.0.94 (Backyard, Driveway, Porch, since 2026-10-16 "Access", NVR channel 3, entities `*.access_*`, and since 2026-10-19
+"Side", NVR channel 4, entities `*.side_*`). Its
 `preload:` block was found **empty** on 2026-10-17 (the notes from 2026-10-10 said it kept the balanced feeds warm; nothing
 records who emptied it) — ask the owner before refilling it. **After a camera password change, restart the add-on**
 (`ha addons restart a889bffc_go2rtc` over SSH) so go2rtc drops the old credentials. Adding a camera: see the
@@ -136,7 +137,7 @@ Lights tab was rebuilt on 2026-10-07 as one card per room (`docs/plans/2026-10-0
 A Chrome tab (the browser tools) is the way to look at the result; close it afterwards. Three more dashboards
 exist: `/fluvy-wall`, the wall tablet's (a Samsung Galaxy Tab A11+, landscape, about 1280 × 800): a hand-made copy of
 the main Home with a chips row of tabs, since wall mode hides the header; `/fluvy-mobile` ("Phone"), the iPhone's
-one-column dashboard (`docs/plans/2026-10-09-phone-dashboard.md`) with the four camera thumbnails on top and a
+one-column dashboard (`docs/plans/2026-10-09-phone-dashboard.md`) with the five camera thumbnails on top (3 + 2) and a
 `live-<camera>` page per camera; and `/fluvy-test`, a trial glance-first Home
 (`docs/plans/2026-10-07-glanceable-home-test-design.md`). A change that touches cameras or weather goes to all four.
 Weather on every dashboard is Environment Canada's `weather.richmond_hill_forecast` (since 2026-10-14; Met.no's
@@ -160,7 +161,7 @@ that gateway drops rules after reboots and firmware updates. This Mac cannot SSH
 ## Apple Home cameras (Scrypted on the MacBook Pro)
 
 Apple Home's cameras come from **Scrypted** on the MacBook Pro (`https://10.0.0.20:10443`; the owner's Chrome is
-logged in), not from Home Assistant: Reolink Camera Plugin → Rebroadcast → HomeKit plugin, all four cameras on the
+logged in), not from Home Assistant: Reolink Camera Plugin → Rebroadcast → HomeKit plugin, the cameras on the
 NVR's `ext.bcs` RTMP stream. When Apple Home shows a fresh snapshot but only a spinner (on and off the network) while
 Home Assistant and the Reolink app play fine, restart Scrypted's **Reolink Camera Plugin** (Plugins → Reolink Camera
 Plugin → Restart Plugin): after NVR reboots it keeps a dead connection (2026-10-18, after a Reolink firmware update;
