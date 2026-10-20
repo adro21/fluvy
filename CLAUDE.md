@@ -137,7 +137,7 @@ Lights tab was rebuilt on 2026-10-07 as one card per room (`docs/plans/2026-10-0
 A Chrome tab (the browser tools) is the way to look at the result; close it afterwards. Three more dashboards
 exist: `/fluvy-wall`, the wall tablet's (a Samsung Galaxy Tab A11+, landscape, about 1280 × 800): a hand-made copy of
 the main Home with a chips row of tabs, since wall mode hides the header; `/fluvy-mobile` ("Phone"), the iPhone's
-one-column dashboard (`docs/plans/2026-10-09-phone-dashboard.md`) with the camera thumbnails on top (Driveway big, Porch and Backyard half, Access and Side small) and a
+one-column dashboard (`docs/plans/2026-10-09-phone-dashboard.md`) with three camera thumbnails on top (Driveway big, Porch and Backyard half; Access and Side only on Security) and a
 `live-<camera>` page per camera; and `/fluvy-test`, a trial glance-first Home
 (`docs/plans/2026-10-07-glanceable-home-test-design.md`). A change that touches cameras or weather goes to all four.
 Weather on every dashboard is Environment Canada's `weather.richmond_hill_forecast` (since 2026-10-14; Met.no's
