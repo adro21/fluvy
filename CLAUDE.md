@@ -184,6 +184,11 @@ reaches them through the HACS integration *Automate Pulse Hub v2* (domain `autom
   `cover.front_office_shade`), and the hub's own bridge is removed from Apple Home. No extender. The hub must stay
   powered. The whole story is in `docs/plans/2026-10-20-front-office-shade.md`.
 
+**Bedroom shades reopening on their own (2026-10-23/25):** a Fluvy slider bug (a scroll that began on a big tile's
+ruler sent a position), fixed in 1.5.26; the story and **the agreed next step if it ever happens again — move the bedroom
+shades in Apple Home to the HomeKit Bridge, no new investigation first —** are in
+`docs/plans/2026-10-25-bedroom-shades-reopening.md`.
+
 Both Pulse 2 addresses are reserved in the gateway (2026-10-20). If one ever changes, add a new `automate` entry at the
 new address, delete the old one and reset the devices' names and areas (the entity ids come back). The old Pro-side
 copies are disabled as `cover.*_pulse_pro_old`. Never "Remove Accessory" on a Pro shade tile in Apple Home: it removes
