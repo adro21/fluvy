@@ -34,7 +34,7 @@ fixed, and **the agreed next step if it ever happens again**.
     `tap_action: more-info`, so a stray tap opens the details instead of moving anything.
   - Backups: `~/.config/fluvy/dashboard-*-backup-20261025-2001.json` (before both changes) and
     `dashboard-*-backup-*-b.json` (before the second).
-  - With 1.5.26 installed, the big tiles can come back if Adam asks.
+  - Adam does not want the sliders back (2026-10-25): the shade tiles stay compact.
 - **Diagnostics turned on** (Home Assistant entities, read-only):
   - Tablet: `binary_sensor.samsung_galaxy_tab_a11_interactive`, `sensor.samsung_galaxy_tab_a11_screen_brightness`,
     `sensor.samsung_galaxy_tab_a11_last_used_app`, `binary_sensor.samsung_galaxy_tab_a11_device_locked`.
