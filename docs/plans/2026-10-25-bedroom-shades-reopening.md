@@ -68,3 +68,14 @@ shades in Apple Home to Home Assistant**, the way the Front Office shade was mov
 4. **Tradeoff to tell Adam:** Apple Home and Siri then reach the bedroom only while Home Assistant is up. To undo it,
    share the Pro back to Apple Home from Home Assistant (Matter → device → *Share device*) and scan the code.
 5. Update this file, `CLAUDE.md`'s shades section and the memory notes.
+
+## 2026-10-26: when the agreed plan does not apply
+
+Apple Home showed Shade 1 and 2 "Closed" while they were open. **Home Assistant and the Automate Pulse app also said
+Closed**: the Pulse Pro itself had the wrong state. Apple Home and Home Assistant both read the Pro over Matter, so
+routing Apple Home through Home Assistant would show the same wrong tiles. The plan above is for problems where
+**Home Assistant is right and Apple Home is wrong**. First check which of the three is wrong.
+
+The Pro was on the floor under the shade, on Wi‑Fi only (Ethernet `10.0.0.222` not connected): 603 ms average,
+2.4 s worst, 5 % lost. Adam moved it higher up in the same room: 173 ms, 0.5 s, 0 %. The 10:30 Pulse timer then
+reported all four correctly. Distance to the shades was never the issue (the Pro is right beside them).
