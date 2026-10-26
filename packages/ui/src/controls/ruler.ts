@@ -33,6 +33,7 @@ const HOLD_MS = 450;
  * the full scale. Off by default: a thumb that rests on a tile's ruler must not change the scale under it.
  *
  * Events: `fluvy-input` while dragging (preview), `fluvy-change` on release, key or tap,
+ * `fluvy-cancel` when a previewed drag ends without a release (the page scrolled instead: drop the preview),
  * `fluvy-window` when the fine scale comes up or goes away (so a card can relabel its axis).
  */
 export class FluvyRuler extends LitElement {
@@ -272,6 +273,16 @@ export class FluvyRuler extends LitElement {
       end: (s, moved) => {
         clearTimeout(this.holdTimer);
         const wasFine = this.fine !== null;
+        // Only a finger lifted from the scale decides. A pointercancel (the browser took the touch back to
+        // scroll the page) or a lost capture is no release: the knob goes back and nothing is sent — a
+        // scroll that began on a shade's ruler used to send that shade wherever the finger had drifted.
+        if (s.event.type !== 'pointerup') {
+          this.dragging = false;
+          this.rise?.set(0);
+          if (wasFine) this.dropFine();
+          this.abandon();
+          return;
+        }
         if (moved || wasFine) {
           const value = this.valueAt(this.cursor);
           this.dragging = false;
@@ -400,6 +411,16 @@ export class FluvyRuler extends LitElement {
         composed: true,
       }),
     );
+  }
+
+  /** A gesture that ended without a release: back to the settled value, and the card drops its preview. */
+  private abandon(): void {
+    const previewed = Number.isFinite(this.lastPreview);
+    this.lastPreview = Number.NaN;
+    this.follow?.jump(this.shown);
+    this.follow?.set(this.fraction(this.settled));
+    if (previewed)
+      this.dispatchEvent(new CustomEvent('fluvy-cancel', { bubbles: true, composed: true }));
   }
 
   private commit(value: number): void {

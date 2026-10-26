@@ -512,6 +512,9 @@ export class FluvyFanCard extends Card<FanCardConfig> {
                   @fluvy-input=${(event: CustomEvent<RulerChangeDetail>) => {
                     this.dragged = event.detail.value;
                   }}
+                  @fluvy-cancel=${() => {
+                    this.dragged = null;
+                  }}
                   @fluvy-change=${(event: CustomEvent<RulerChangeDetail>) => this.setSpeed(view, event.detail.value, false)}
                   @fluvy-window=${(event: CustomEvent<RulerWindowDetail>) => {
                     this.fine = event.detail.fine ? event.detail : null;

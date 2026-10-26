@@ -5,6 +5,13 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Scrolling past a slider no longer moves anything.** When a touch that began on a ruler (a shade's position, a
+  light's brightness, a fan's speed) turned into a page scroll, the browser cancelled it and the ruler sent wherever
+  the finger had drifted: scrolling a phone's Home past a shade group's tile reopened four bedroom shades. A ruler
+  now sends a value only when a finger is lifted from it; a cancelled touch springs back and sends nothing.
+
 ## [1.5.25] — 2026-10-10
 
 ### Changed

@@ -332,6 +332,9 @@ export class FluvyLightCard extends Card<LightCardConfig> {
                 .label=${`${name} · ${this.t('light.brightness')}`}
                 .format=${(v: number) => formatNumber(this.hass, v, { digits: 0 })}
                 @fluvy-input=${(e: CustomEvent<RulerChangeDetail>) => this.onInput(e.detail.value)}
+                @fluvy-cancel=${() => {
+                  this.preview_ = null;
+                }}
                 @fluvy-change=${(e: CustomEvent<RulerChangeDetail>) => {
                   this.preview_ = null;
                   this.setBrightness(e.detail.value);

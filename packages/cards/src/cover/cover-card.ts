@@ -535,6 +535,9 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
                   @fluvy-input=${(event: CustomEvent<RulerChangeDetail>) => {
                     this.dragged = event.detail.value;
                   }}
+                  @fluvy-cancel=${() => {
+                    this.dragged = null;
+                  }}
                   @fluvy-change=${(event: CustomEvent<RulerChangeDetail>) => this.moveTo(view, event.detail.value)}
                   @fluvy-window=${(event: CustomEvent<RulerWindowDetail>) => {
                     this.fine = event.detail.fine ? event.detail : null;

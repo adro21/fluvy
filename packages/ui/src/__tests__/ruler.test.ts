@@ -94,3 +94,69 @@ describe('the ruler’s fine scale', () => {
     expect(node.fineAdjust).toBe(false);
   });
 });
+
+describe('a drag that ends without a release', () => {
+  beforeEach(() => setMotionPreference('reduced'));
+  afterEach(() => {
+    document.body.replaceChildren();
+    setMotionPreference('system');
+  });
+
+  async function gesture() {
+    const { node } = await ruler();
+    const scale = node.shadowRoot!.querySelector<HTMLElement>('.fv-ruler')!;
+    const changes: number[] = [];
+    let cancels = 0;
+    node.addEventListener('fluvy-change', (event) =>
+      changes.push((event as CustomEvent<{ value: number }>).detail.value),
+    );
+    node.addEventListener('fluvy-cancel', () => cancels++);
+    const fire = (type: string, clientX: number, clientY: number) =>
+      scale.dispatchEvent(
+        new PointerEvent(type, {
+          clientX,
+          clientY,
+          pointerId: 1,
+          pointerType: 'touch',
+          bubbles: true,
+        }),
+      );
+    return { node, changes, cancels: () => cancels, fire };
+  }
+
+  it('sends nothing when the page takes a vertical scroll that began on the scale', async () => {
+    const { node, changes, cancels, fire } = await gesture();
+    fire('pointerdown', 160, 22);
+    fire('pointermove', 163, 60);
+    fire('pointercancel', 163, 60);
+    expect(changes).toEqual([]);
+    expect(cancels()).toBe(1);
+    expect(node.value).toBe(50);
+  });
+
+  it('sends nothing when a sideways drag is cancelled midway', async () => {
+    const { changes, fire } = await gesture();
+    fire('pointerdown', 160, 22);
+    fire('pointermove', 260, 24);
+    fire('pointercancel', 260, 24);
+    expect(changes).toEqual([]);
+  });
+
+  it('sends nothing when the capture is lost', async () => {
+    const { changes, fire } = await gesture();
+    fire('pointerdown', 160, 22);
+    fire('pointermove', 260, 24);
+    fire('lostpointercapture', 260, 24);
+    expect(changes).toEqual([]);
+  });
+
+  it('still sends the value a lifted finger chose', async () => {
+    const { changes, cancels, fire } = await gesture();
+    fire('pointerdown', 160, 22);
+    fire('pointermove', 260, 24);
+    fire('pointerup', 260, 24);
+    expect(changes).toHaveLength(1);
+    expect(changes[0]).toBeGreaterThan(50);
+    expect(cancels()).toBe(0);
+  });
+});

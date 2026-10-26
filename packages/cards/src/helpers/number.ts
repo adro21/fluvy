@@ -134,6 +134,7 @@ export function numberBlocks(
       .label=${`${name} · ${s(host.hass, 'value')}`}
       .format=${(value: number) => text(host, m, value)}
       @fluvy-input=${(event: CustomEvent<RulerChangeDetail>) => host.setPreview(view.id, event.detail.value)}
+      @fluvy-cancel=${() => host.setPreview(view.id, null)}
       @fluvy-change=${(event: CustomEvent<RulerChangeDetail>) => {
         host.setPreview(view.id, null);
         host.expect(view.id, String(event.detail.value));
