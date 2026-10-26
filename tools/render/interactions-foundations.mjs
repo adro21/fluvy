@@ -314,7 +314,8 @@ async function open(sheet, width = 360, options = {}) {
   await page.waitForTimeout(400);
   await reset(page);
 
-  // a lost pointer capture ends the gesture where it was
+  // a lost pointer capture ends the gesture without deciding: nothing is sent and the drag is released
+  // (1.5.26 — a touch the page took back for scrolling used to send a shade wherever the finger had drifted)
   const before = Number(
     (await card.locator('.fv-readout--l .fv-readout__value span').first().textContent()).trim(),
   );
@@ -332,8 +333,8 @@ async function open(sheet, width = 360, options = {}) {
   c = await calls(page);
   const dragging = await ruler.evaluate((el) => el.classList.contains('is-dragging'));
   check(
-    'ruler: losing pointer capture commits and releases the drag',
-    c.length === 1 && !dragging && c[0].d.brightness_pct !== before,
+    'ruler: losing pointer capture sends nothing and releases the drag',
+    c.length === 0 && !dragging,
     `${before} → ${JSON.stringify(c.map((x) => x.d.brightness_pct))} · dragging ${dragging}`,
   );
   await page.mouse.up();
