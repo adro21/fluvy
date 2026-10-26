@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.26] — 2026-10-26
+
 ### Fixed
 
 - **Scrolling past a slider no longer moves anything.** When a touch that began on a ruler (a shade's position, a
