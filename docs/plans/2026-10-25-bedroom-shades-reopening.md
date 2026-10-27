@@ -79,3 +79,12 @@ routing Apple Home through Home Assistant would show the same wrong tiles. The p
 The Pro was on the floor under the shade, on Wi‑Fi only (Ethernet `10.0.0.222` not connected): 603 ms average,
 2.4 s worst, 5 % lost. Adam moved it higher up in the same room: 173 ms, 0.5 s, 0 %. The 10:30 Pulse timer then
 reported all four correctly. Distance to the shades was never the issue (the Pro is right beside them).
+
+## 2026-10-27: the remote moves the shades without the hub hearing it
+
+Adam opened the shades with the physical remote. Home Assistant (and so Apple Home) kept Shade 1 and 2 at **closed 0**
+from the 6:17 pm sundown close on; the hub received nothing from the shade motors afterwards. The drapes did report
+opening, at 7:49 am. The remote talks straight to the motors, so the hub only learns a remote move if the motor
+reports it back, and the shade motors did not. This is not the slider bug, and the Home Assistant plan above would show
+the same wrong tiles. Pressing Open in any app resyncs the tile (the motor is already up, so nothing moves). The Pro's
+Wi‑Fi was fine at the time (105 ms average, no loss).
