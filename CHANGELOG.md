@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.27] — 2026-10-29
+
 ### Fixed
 
 - **A live camera picture that freezes comes back on its own.** Home Assistant's player does not always recover when
