@@ -115,7 +115,11 @@ file (`cp -n x x.bak-<date>` and a copy in `~/.config/fluvy/`) before changing i
 10.0.0.94 (Backyard, Driveway, Porch, since 2026-10-16 "Access", NVR channel 3, entities `*.access_*`, and since 2026-10-19
 "Side", NVR channel 4, entities `*.side_*`). Its
 `preload:` block was found **empty** on 2026-10-17 (the notes from 2026-10-10 said it kept the balanced feeds warm; nothing
-records who emptied it) — ask the owner before refilling it. **After a camera password change, restart the add-on**
+records who emptied it) — ask the owner before refilling it. **A go2rtc restart (an add-on update included) kills every live picture on an open dashboard**, and Home Assistant's
+player does not always come back: the card then shows the one snapshot it took at page load (2026-10-28, the wall tablet).
+Since 1.5.27 the camera card remakes a frozen player itself; a page opened before a release still needs one pull-to-refresh
+to get the new code. From the Mac, go2rtc's `curl http://10.0.0.197:1984/api/streams` over SSH lists who is watching by IP
+(the tablet is 10.0.0.95). **After a camera password change, restart the add-on**
 (`ha addons restart a889bffc_go2rtc` over SSH) so go2rtc drops the old credentials. Adding a camera: see the
 `access-camera` memory note (channel ↔ uid from the NVR's `GetChannelstatus`, rename device and entities, enable the
 balanced/clear streams, add the three stream blocks, clone the Backyard card on every dashboard).
