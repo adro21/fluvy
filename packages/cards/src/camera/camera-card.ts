@@ -41,6 +41,7 @@ import {
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { configKeys, ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
 import { toneOf } from '../shared/colour.js';
+import { keyed } from 'lit/directives/keyed.js';
 import { Crossfade } from '../shared/crossfade.js';
 import { listLength, ROW } from '../shared/heights.js';
 import { wallHost } from '../shared/host.js';
@@ -74,6 +75,33 @@ export interface CameraCardConfig extends RowsCardConfig {
 const STALL_MS = 30_000;
 /** This many failures in a row and the last good frame stops standing in for the camera. */
 const GIVE_UP = 3;
+/** Live: the player's picture is looked at this often. */
+const WATCH_MS = 10_000;
+/** Live: a picture that has not moved for this long is made again, from a fresh player. */
+const PATIENCE_MS = 20_000;
+/** Live: while the camera stays silent, each remake waits twice as long as the last, up to this. */
+const PATIENCE_MAX_MS = 300_000;
+
+/** The videos inside Home Assistant's player: in its shadow root and in those of its parts. */
+function videosIn(
+  root: ShadowRoot | null | undefined,
+  out: HTMLVideoElement[] = [],
+): HTMLVideoElement[] {
+  if (!root) return out;
+  for (const child of root.querySelectorAll('*')) {
+    if (child instanceof HTMLVideoElement) out.push(child);
+    else videosIn(child.shadowRoot, out);
+  }
+  return out;
+}
+
+/** What the video has shown so far: the frames it decoded and where its clock is; the same twice means a frozen picture. */
+function progressOf(video: HTMLVideoElement): string {
+  const quality = (
+    video as HTMLVideoElement & { getVideoPlaybackQuality?: () => { totalVideoFrames: number } }
+  ).getVideoPlaybackQuality?.();
+  return `${quality ? quality.totalVideoFrames : -1}|${video.currentTime}`;
+}
 
 let playerAsked = false;
 /**
@@ -99,6 +127,12 @@ function askForPlayer(entity: string): void {
  * two overlay actions. Two stacked images take turns: the next frame loads behind the current one
  * and fades in over it once decoded, so the picture never blinks. One interval, which only runs
  * while the card is on screen and the tab is in front, and is gone with the card.
+ *
+ * Live: Home Assistant's player in place of the stills. The player does not always come back when its
+ * video dies — a restart of Home Assistant or of go2rtc, a tablet that slept — and then it shows the
+ * one still it took at the start, for good. So the card looks at the picture every few seconds while
+ * it is on screen, and a picture that has not moved for a while is made again from a fresh player;
+ * while the camera stays silent each remake waits longer than the last.
  */
 export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */
@@ -263,6 +297,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
     stamp_: { state: true },
     failed_: { state: true },
     stale_: { state: true },
+    made_: { state: true },
   };
 
   /** The two stacked frames: the next one loads behind and shows once decoded. */
@@ -283,6 +318,8 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   declare failed_: boolean;
   /** The shown frame is older than it should be: the last request failed, or the loop is stopped. */
   declare stale_: boolean;
+  /** Live: how many times the player has been made; a new number is a new player. */
+  declare made_: number;
 
   private timer = 0;
   /** Seconds the running interval was started with, so a config change restarts it. */
@@ -295,12 +332,21 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   private failures = 0;
   /** The full-screen view this card opened, while it is up. */
   private viewer: FluvyCameraView | undefined;
+  /** Live: the interval that looks at the picture; 0 while it is not running. */
+  private watch = 0;
+  /** Live: the picture's progress at the last look; '' before the first. */
+  private seen = '';
+  /** Live: for how long the picture has not moved. */
+  private quiet = 0;
+  /** Live: how long a still picture is given before the player is made again. */
+  private patience = PATIENCE_MS;
 
   constructor() {
     super();
     this.stamp_ = 0;
     this.failed_ = false;
     this.stale_ = false;
+    this.made_ = 0;
   }
 
   static override keys = configKeys<CameraCardConfig>()([
@@ -391,6 +437,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
     this.observer?.disconnect();
     this.observer = undefined;
     this.stop();
+    this.unwatch();
     this.viewer?.close(); // the card went (another page): the view it opened goes with it
   }
 
@@ -410,14 +457,13 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
   /** Runs the loop exactly while it is worth running: connected, on screen, tab in front, a camera with a picture. */
   private sync(): void {
     const view = this.entity();
-    const wanted =
+    const shown =
       this.isConnected &&
-      !this.live &&
       this.onScreen &&
       this.inFront &&
       Boolean(this.hass) &&
-      view.status === 'ok' &&
-      Boolean(view.attr<string | null>('entity_picture'));
+      view.status === 'ok';
+    const wanted = shown && !this.live && Boolean(view.attr<string | null>('entity_picture'));
     const seconds = this.config?.refresh ?? 10;
     if (this.timer && (!wanted || seconds !== this.period)) this.stop();
     if (wanted && !this.timer) {
@@ -425,6 +471,38 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       this.timer = window.setInterval(() => this.pull(), seconds * 1000);
       this.pull();
     }
+    const watched = shown && this.live;
+    if (this.watch && !watched) this.unwatch();
+    if (watched && !this.watch) this.watch = window.setInterval(() => this.look(), WATCH_MS);
+  }
+
+  /* ---------- live: the watch on the player ---------- */
+
+  private unwatch(): void {
+    clearInterval(this.watch);
+    this.watch = 0;
+    this.seen = '';
+    this.quiet = 0; // back on screen, the player gets its full patience again
+  }
+
+  /** One look at the live picture: moved since the last look, or not; still for too long, a fresh player. */
+  private look(): void {
+    // while the player is still choosing between its two streams, one of them moving is enough
+    const now = videosIn(this.renderRoot.querySelector('ha-camera-stream')?.shadowRoot)
+      .map(progressOf)
+      .join(' ');
+    if (now && this.seen && now !== this.seen) {
+      this.quiet = 0;
+      this.patience = PATIENCE_MS;
+    } else {
+      this.quiet += WATCH_MS;
+    }
+    this.seen = now;
+    if (this.quiet < this.patience) return;
+    this.quiet = 0;
+    this.seen = '';
+    this.patience = Math.min(this.patience * 2, PATIENCE_MAX_MS);
+    this.made_ += 1;
   }
 
   /** Asks the image behind for a fresh still. One request at a time: a slow camera is waited for, not piled onto. */
@@ -550,14 +628,17 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       <div class="dv-cam fv-plate ${off ? 'is-off' : ''}" style="height:${height}px">
         ${
           live
-            ? html`<ha-camera-stream
-                class="dv-cam__video"
-                muted
-                data-measure="skip"
-                .hass=${this.hass}
-                .stateObj=${view.stateObj}
-                .fitMode=${'cover'}
-              ></ha-camera-stream>`
+            ? keyed(
+                this.made_,
+                html`<ha-camera-stream
+                  class="dv-cam__video"
+                  muted
+                  data-measure="skip"
+                  .hass=${this.hass}
+                  .stateObj=${view.stateObj}
+                  .fitMode=${'cover'}
+                ></ha-camera-stream>`,
+              )
             : this.frames.render()
         }
         ${

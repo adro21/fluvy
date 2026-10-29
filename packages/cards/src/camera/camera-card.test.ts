@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterAll, afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import type { HomeAssistant } from '@fluvy/core';
 import { familiesDefined } from '../index.js';
 import { FluvyCameraCard } from './camera-card.js';
@@ -113,9 +113,17 @@ describe('the camera’s compact style', () => {
 });
 
 describe('live video', () => {
-  // Home Assistant's player is not here: a bare element stands in for it
+  // Home Assistant's player is not here: an element with a video in its shadow stands in for it
   if (!customElements.get('ha-camera-stream'))
-    customElements.define('ha-camera-stream', class extends HTMLElement {});
+    customElements.define(
+      'ha-camera-stream',
+      class extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: 'open' }).append(document.createElement('video'));
+        }
+      },
+    );
 
   type Player = HTMLElement & { stateObj?: { entity_id: string }; hass?: unknown };
 
@@ -156,6 +164,50 @@ describe('live video', () => {
     expect(document.querySelector('fluvy-camera-view')).not.toBeNull();
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(document.querySelector('fluvy-camera-view')).toBeNull();
+  });
+
+  it('remakes the player when its picture stops moving, and leaves a moving one alone', async () => {
+    vi.useFakeTimers();
+    // the card is on screen from its first frame
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(private cb: (entries: { isIntersecting: boolean }[]) => void) {}
+        observe() {
+          this.cb([{ isIntersecting: true }]);
+        }
+        disconnect() {}
+      },
+    );
+    try {
+      const card = await camera({ live: true });
+      const first = root(card).querySelector('ha-camera-stream')!;
+      const video = first.shadowRoot!.querySelector('video')!;
+      video.currentTime = 1;
+      await vi.advanceTimersByTimeAsync(10_000);
+      video.currentTime = 2;
+      await vi.advanceTimersByTimeAsync(10_000);
+      video.currentTime = 3;
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(root(card).querySelector('ha-camera-stream')).toBe(first); // moving: kept
+
+      await vi.advanceTimersByTimeAsync(20_000); // two looks, nothing new
+      await card.updateComplete;
+      const second = root(card).querySelector('ha-camera-stream')!;
+      expect(second).not.toBe(first);
+      expect((second as Player).stateObj?.entity_id).toBe('camera.driveway');
+
+      // a camera that stays silent is asked again, each time after a longer wait
+      await vi.advanceTimersByTimeAsync(20_000);
+      await card.updateComplete;
+      expect(root(card).querySelector('ha-camera-stream')).toBe(second);
+      await vi.advanceTimersByTimeAsync(20_000);
+      await card.updateComplete;
+      expect(root(card).querySelector('ha-camera-stream')).not.toBe(second);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
 
   it('shows live in the editor', () => {

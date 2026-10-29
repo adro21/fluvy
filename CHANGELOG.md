@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A live camera picture that freezes comes back on its own.** Home Assistant's player does not always recover when
+  its video dies — a restart of Home Assistant or of go2rtc, a wall tablet that slept — and then it shows the one
+  still it took at the start, for good, until the page is reloaded. The camera card now looks at its live picture
+  every ten seconds while it is on screen; one that has not moved for twenty seconds is made again from a fresh
+  player, and while a camera stays silent each try waits twice as long as the last, up to five minutes.
+
 ## [1.5.26] — 2026-10-26
 
 ### Fixed
