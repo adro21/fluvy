@@ -175,6 +175,18 @@ video tops out at 1080p and Scrypted passes streams through, so a 2560 × 1440 H
 corner (tried on Backyard on 2026-10-18 and reverted; the NVR's main cannot go below 2304 × 1296 and its `ext` stream is
 not configurable). The NVR's encoder settings before that test are in `~/.config/fluvy/nvr-enc-backup-2026-10-18.json`.
 
+**Camera Watchdog (since 2026-11-12).** The same fault came back for two cameras only (Driveway and Access showed
+"Snapshot Timed Out") after the NVR stalled for a minute and a half without rebooting. Scrypted now repairs this itself:
+the script *Scripts → Camera Watchdog* checks every 5 minutes that each Reolink camera's video is really flowing in
+Scrypted and restarts the Reolink Camera Plugin when a feed is dead twice in a row (15-minute cooldown; after three
+restarts in two hours it leaves it alone for six). A script does not come back when Scrypted's Core plugin restarts
+(its *Autoupdate Plugins* automation runs at 03:15), so the automation *Camera Watchdog Starter* starts it daily at
+03:30, 11:30 and 19:30; a second start while it runs only logs "already running". **When Apple Home cameras fail, read
+the watchdog's log first** (its device page → Log). A copy of the script is in
+`~/.config/fluvy/scrypted-camera-watchdog.ts`. Scrypted's login is the owner's: an assistant never types it. If the
+password is lost, on the Pro `touch ~/.scrypted/volume/reset-login`, reload the page and create a new admin (cameras,
+plugins and the HomeKit pairing are kept; done on 2026-11-12).
+
 ## The shades (three Automate hubs, since 2026-10-17)
 
 Every motor is on exactly one hub. The **Pulse Pro** has the four bedroom shades (`cover.shade_1/2`, `cover.drape_1/2`)
