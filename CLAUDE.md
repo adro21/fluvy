@@ -162,6 +162,21 @@ loopback (`nc -z -G 3 <public ip> 18555` works from inside), so a timeout on 443
 re-adds *TCP 443 → 10.0.0.20* in the Ignite HomeConnect app (Connect → See Network → Advanced Settings → Port Forwarding);
 that gateway drops rules after reboots and firmware updates. This Mac cannot SSH into the Pro.
 
+## House watch (since 2026-11-21)
+
+`.github/workflows/house-watch.yml` asks the outside address (the `HOUSE_URL` secret, `https://<name>/api/`) every ten
+minutes from GitHub. 401 or 200 means Home Assistant answered. Anything else, four times in a row, opens **one** issue
+labelled `house-down` in the fork that mentions the owner (GitHub emails him); the next good answer closes it with a
+comment. The run stays green either way, so it adds no red-run emails. Issues are enabled on the fork for this only.
+Test it with `gh workflow run house-watch.yml --repo adro21/fluvy -f pretend=502`, then run it again without the input
+to close the issue. GitHub switches scheduled workflows off after 60 days without a commit: re-enable it with
+`gh workflow enable house-watch.yml --repo adro21/fluvy`.
+
+It exists because on 2026-11-21 Home Assistant sat cut off for a day before anyone noticed: the VM was "Running"
+(headless, no VirtualBox window) with a dead bridge — 10.0.0.197 "Host is down", Caddy 502, the Pro fine. The fix, no
+restart: VirtualBox → Home Assistant → Settings → Network → Name: pick `en1`, OK, then reopen, pick `en6`, OK ("Saving
+Settings…" spins for about a minute each time; wait). Home Assistant cannot report this itself: it has no network then.
+
 ## Apple Home cameras (Scrypted on the MacBook Pro)
 
 Apple Home's cameras come from **Scrypted** on the MacBook Pro (`https://10.0.0.20:10443`; the owner's Chrome is

@@ -1,0 +1,85 @@
+name: House watch
+
+# Asks the house's outside address every ten minutes whether Home Assistant answers.
+# When it stops answering, one issue is opened (GitHub emails the owner); when it is
+# back, the issue is closed. The run itself stays green either way.
+
+on:
+  schedule:
+    - cron: '3-59/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      pretend:
+        description: 'Test only: pretend the house answered with this HTTP code (e.g. 502, 000)'
+        required: false
+
+permissions:
+  issues: write
+
+concurrency:
+  group: house-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: github.repository == 'adro21/fluvy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Ask the house
+        env:
+          HOUSE_URL: ${{ secrets.HOUSE_URL }}
+          PRETEND: ${{ inputs.pretend }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -u
+          if [ -z "$HOUSE_URL" ]; then
+            echo "The HOUSE_URL secret is not set."
+            exit 1
+          fi
+
+          # Four tries over about two and a half minutes, so a blip is not an alarm.
+          code=000
+          for try in 1 2 3 4; do
+            if [ -n "$PRETEND" ]; then
+              code="$PRETEND"
+              break
+            fi
+            code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$HOUSE_URL" || true)
+            case "$code" in 200 | 401) break ;; esac
+            if [ "$try" -lt 4 ]; then sleep 45; fi
+          done
+          echo "The house answered: $code"
+
+          open=$(gh issue list --repo "$REPO" --label house-down --state open --json number --jq '.[0].number // empty')
+          now=$(TZ=America/Toronto date '+%a %b %-d, %-I:%M %p')
+
+          case "$code" in
+            200 | 401)
+              if [ -n "$open" ]; then
+                gh issue close "$open" --repo "$REPO" --comment "Home Assistant answers again ($now). @$OWNER"
+              fi
+              ;;
+            *)
+              if [ -n "$open" ]; then
+                echo "Still down; issue #$open is already open."
+                exit 0
+              fi
+              case "$code" in
+                5*)
+                  what="The MacBook Pro answers, but Home Assistant behind it does not (code $code)."
+                  todo="Most likely the virtual machine lost its network link, as on 2026-11-21. On the Pro: VirtualBox → Home Assistant → Settings → Network → Name: pick *en1: Thunderbolt 1*, OK; open it again, pick *en6: USB 10/100/1000 LAN*, OK. Each save takes about a minute."
+                  ;;
+                *)
+                  what="Nothing at the house answers from outside (code $code)."
+                  todo="Either the power or the internet is out, the MacBook Pro is off, or the gateway has lost its port 443 forward (see *Reaching the house from outside* in CLAUDE.md)."
+                  ;;
+              esac
+              printf '%s\n\n%s\n\nNoticed %s. This closes by itself when Home Assistant answers again.\n\n@%s\n' \
+                "$what" "$todo" "$now" "$OWNER" > body.md
+              gh issue create --repo "$REPO" --label house-down \
+                --title "Home Assistant is not answering ($now)" --body-file body.md
+              ;;
+          esac
