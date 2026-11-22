@@ -101,6 +101,21 @@ node tools/dev/ha.mjs status            # confirm "Loaded: X.Y.Z" and the resour
 
 Then tell the owner to hard-refresh the browser (Cmd + Shift + R).
 
+**Since Home Assistant 2026.11 (2026-11-21) HACS is gone:** the update turned it into the built-in *Marketplace*
+(domain `marketplace`, no folder in `custom_components`, the fork still registered and "installed"). Where these
+notes say HACS, read Marketplace; `ha.mjs` now sends `marketplace/repositories/list`, `marketplace/repository/refresh`
+and `marketplace/repository/install`. The Marketplace refuses to install or update anything
+(`warning_not_accepted`) until the owner has opened it once and accepted its warning: that is his to read and
+accept, never an assistant's to accept for him or to work around.
+
+**A Home Assistant update can stop the integration at import** (2026.11 moved `EVENT_THEMES_UPDATED` from the
+frontend component to `homeassistant.const`; 1.5.28 fixes it). The sign: every Fluvy card blank, `ha.mjs status`
+says `Integration: not_loaded`, and `system_log/list` has "Setup failed for custom integration 'fluvy'". Check the
+names the Python imports against the new version's source (`gh api
+repos/home-assistant/core/contents/…?ref=<version>`). Reloading the entry does not retry a failed import; only a
+restart does. To get the house back before a release, the fixed file can be copied over SSH into
+`/config/custom_components/fluvy/` (back it up first), then restart.
+
 ## The house itself (SSH, since 2026-10-10)
 
 The Home Assistant box (HAOS in a VirtualBox VM, reserved at 10.0.0.197) runs the *Terminal & SSH* add-on, key-only
