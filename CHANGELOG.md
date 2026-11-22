@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.28] — 2026-11-22
+
 ### Fixed
 
 - **Fluvy starts again on Home Assistant 2026.11.** That version moved the name of its "themes updated" event out of
