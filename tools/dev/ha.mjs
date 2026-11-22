@@ -75,7 +75,7 @@ async function ws(message, { timeout = 120_000 } = {}) {
 }
 
 async function fluvyInHacs() {
-  const list = await ws({ type: 'hacs/repositories/list', categories: ['integration'] });
+  const list = await ws({ type: 'marketplace/repositories/list', categories: ['integration'] });
   return list.find((r) => r.full_name === REPOSITORY) ?? null;
 }
 
@@ -103,7 +103,7 @@ async function status() {
 async function refresh() {
   const repo = await fluvyInHacs();
   if (!repo) throw new Error(`${REPOSITORY} is not in HACS`);
-  await ws({ type: 'hacs/repository/refresh', repository: repo.id });
+  await ws({ type: 'marketplace/repository/refresh', repository: repo.id });
   const after = await fluvyInHacs();
   console.log(
     `HACS sees ${after.available_version ?? '—'} (installed ${after.installed_version ?? '—'})`,
@@ -115,8 +115,8 @@ async function download(version) {
     throw new Error('usage: node tools/dev/ha.mjs download vX.Y.Z');
   const repo = await fluvyInHacs();
   if (!repo) throw new Error(`${REPOSITORY} is not in HACS`);
-  await ws({ type: 'hacs/repository/refresh', repository: repo.id });
-  await ws({ type: 'hacs/repository/download', repository: repo.id, version });
+  await ws({ type: 'marketplace/repository/refresh', repository: repo.id });
+  await ws({ type: 'marketplace/repository/install', repository: repo.id, version });
   const after = await fluvyInHacs();
   if (after.installed_version !== version)
     throw new Error(`HACS reports ${after.installed_version} after the download, not ${version}`);

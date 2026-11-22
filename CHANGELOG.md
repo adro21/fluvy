@@ -5,6 +5,12 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Fluvy starts again on Home Assistant 2026.11.** That version moved the name of its "themes updated" event out of
+  the frontend component, and the integration stopped at its first line: no cards, no theme, no settings panel. The
+  integration now takes the name from where 2026.11 keeps it and falls back to the old place on earlier versions.
+
 ## [1.5.27] — 2026-10-29
 
 ### Fixed
