@@ -1,7 +1,7 @@
 # CLAUDE.md — working in this fork
 
 This repository is Adam's **personal fork** of Fluvy (`acosta290/fluvy`), a Home Assistant theme and card library.
-It runs on his own Home Assistant through HACS, which installs the `fluvy.zip` attached to a GitHub release of
+It runs on his own Home Assistant through the built-in *Marketplace* (HACS until Home Assistant 2026.11), which installs the `fluvy.zip` attached to a GitHub release of
 **this fork** (`adro21/fluvy`). The owner is not a developer: do the work end to end, never ask him to run commands,
 and explain in plain language.
 
@@ -87,13 +87,13 @@ tag `vX.Y.Z` targeting `main`, publish; the *Release* workflow builds and attach
 A **local** session (on the owner's Mac) reaches his Home Assistant at `http://homeassistant.local` (no port). The
 long-lived token is in `~/.config/fluvy/ha.env` (`HA_URL=…`, `HA_TOKEN=…`), owner-readable only; it is never
 committed, printed or sent anywhere but that address. A cloud session cannot reach the house: then the owner clicks
-*Update* in HACS and restarts.
+*Update* in the Marketplace and restarts.
 
-`tools/dev/ha.mjs` does the HACS side (worked on 2026-10-07):
+`tools/dev/ha.mjs` does the Marketplace side (worked on 2026-10-07 with HACS, on 2026-11-21 with the Marketplace):
 
 ```sh
-node tools/dev/ha.mjs status            # HA version, what HACS has, what is loaded, the resource URL
-node tools/dev/ha.mjs download vX.Y.Z   # HACS refreshes the fork's releases and downloads that one
+node tools/dev/ha.mjs status            # HA version, what the Marketplace has, what is loaded, the resource URL
+node tools/dev/ha.mjs download vX.Y.Z   # the Marketplace refreshes the fork's releases and installs that one
 node tools/dev/ha.mjs restart           # restarts Home Assistant and waits until it is back
 node tools/dev/ha.mjs add               # re-adds the integration if it was deleted
 node tools/dev/ha.mjs status            # confirm "Loaded: X.Y.Z" and the resource URL carries X.Y.Z
@@ -102,11 +102,13 @@ node tools/dev/ha.mjs status            # confirm "Loaded: X.Y.Z" and the resour
 Then tell the owner to hard-refresh the browser (Cmd + Shift + R).
 
 **Since Home Assistant 2026.11 (2026-11-21) HACS is gone:** the update turned it into the built-in *Marketplace*
-(domain `marketplace`, no folder in `custom_components`, the fork still registered and "installed"). Where these
-notes say HACS, read Marketplace; `ha.mjs` now sends `marketplace/repositories/list`, `marketplace/repository/refresh`
-and `marketplace/repository/install`. The Marketplace refuses to install or update anything
-(`warning_not_accepted`) until the owner has opened it once and accepted its warning: that is his to read and
-accept, never an assistant's to accept for him or to work around.
+(domain `marketplace`, a sidebar panel at `/marketplace`, no folder in `custom_components`; the fork stayed registered
+and installed). `ha.mjs` sends `marketplace/repositories/list`, `marketplace/repository/refresh` and
+`marketplace/repository/install`. The Marketplace refuses to install or update anything (`warning_not_accepted`)
+until the owner has opened it once and accepted its warning; he did on 2026-11-21. If it ever asks again, that is his
+to read and accept, never an assistant's to accept for him or to work around. The `update.hacs_update` entity is gone
+(removed from the Updates cards on `/fluvy-auto` and `/fluvy-test`); the *Get HACS* add-on is still installed and
+does nothing now.
 
 **A Home Assistant update can stop the integration at import** (2026.11 moved `EVENT_THEMES_UPDATED` from the
 frontend component to `homeassistant.const`; 1.5.28 fixes it). The sign: every Fluvy card blank, `ha.mjs status`
@@ -221,7 +223,7 @@ plugins and the HomeKit pairing are kept; done on 2026-11-12).
 
 Every motor is on exactly one hub. The **Pulse Pro** has the four bedroom shades (`cover.shade_1/2`, `cover.drape_1/2`)
 and reaches both Apple Home and Home Assistant over Matter. Two **Pulse 2** hubs have one shade each, and Home Assistant
-reaches them through the HACS integration *Automate Pulse Hub v2* (domain `automate`), added by IP:
+reaches them through the Marketplace integration *Automate Pulse Hub v2* (domain `automate`), added by IP:
 
 - RA-Pulse-1154325, wired at 10.0.0.223 → `cover.living_room`; in Apple Home through its own HomeKit bridge.
 - RA-Pulse-1018893, on Wi‑Fi **beside the shade** at 10.0.0.114 → `cover.front_office_shade`. Its receiver is weak
@@ -244,5 +246,5 @@ the whole bridge.
 
 The Chrome tools reach the owner's logged-in Home Assistant: open `http://homeassistant.local/…` in a new tab,
 inspect computed styles with the JavaScript tool (the theme's variables sit on the `home-assistant` element),
-take a screenshot, and close the tab. Cancel any editor opened there rather than saving it. The fork is registered in HACS as a custom
-repository of type *Integration* (`adro21/fluvy`); the original `acosta290/fluvy` was removed from HACS.
+take a screenshot, and close the tab. Cancel any editor opened there rather than saving it. The fork is registered in the Marketplace as a custom
+repository of type *Integration* (`adro21/fluvy`); the original `acosta290/fluvy` was removed from HACS (it is back in the Marketplace's own list, not installed: leave it alone).

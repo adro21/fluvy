@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * Talks to the owner's own Home Assistant over its API, so a release can be installed from here without clicking
- * through HACS. Dev tool only: nothing of this ships in the integration.
+ * through the Marketplace (HACS until Home Assistant 2026.11). Dev tool only: nothing of this ships in the integration.
  *
- *   node tools/dev/ha.mjs status                   Home Assistant's version, what HACS has of Fluvy, what is loaded
- *   node tools/dev/ha.mjs refresh                  make HACS look at the fork's releases again (after a new one)
- *   node tools/dev/ha.mjs download v1.5.2          HACS downloads that release of the fork
+ *   node tools/dev/ha.mjs status                   Home Assistant's version, what the Marketplace has of Fluvy, what is loaded
+ *   node tools/dev/ha.mjs refresh                  make the Marketplace look at the fork's releases again (after a new one)
+ *   node tools/dev/ha.mjs download v1.5.2          the Marketplace installs that release of the fork
  *   node tools/dev/ha.mjs restart                  restart Home Assistant (waits until it answers again)
  *   node tools/dev/ha.mjs add                      add the Fluvy integration when it is missing (after a removal)
  *   node tools/dev/ha.mjs ws '{"type":"..."}'      any WebSocket command, for looking around
@@ -74,7 +74,7 @@ async function ws(message, { timeout = 120_000 } = {}) {
   });
 }
 
-async function fluvyInHacs() {
+async function fluvyInMarketplace() {
   const list = await ws({ type: 'marketplace/repositories/list', categories: ['integration'] });
   return list.find((r) => r.full_name === REPOSITORY) ?? null;
 }
@@ -82,11 +82,11 @@ async function fluvyInHacs() {
 async function status() {
   const config = await rest('GET', '/api/config');
   console.log(`Home Assistant ${config.version} (${config.location_name})`);
-  const repo = await fluvyInHacs();
-  if (!repo) console.log(`HACS: ${REPOSITORY} is not added as a custom repository`);
+  const repo = await fluvyInMarketplace();
+  if (!repo) console.log(`Marketplace: ${REPOSITORY} is not added as a custom repository`);
   else
     console.log(
-      `HACS: ${REPOSITORY} installed=${repo.installed} version=${repo.installed_version ?? '—'} available=${repo.available_version ?? '—'}`,
+      `Marketplace: ${REPOSITORY} installed=${repo.installed} version=${repo.installed_version ?? '—'} available=${repo.available_version ?? '—'}`,
     );
   const entries = await rest('GET', '/api/config/config_entries/entry?domain=fluvy');
   console.log(
@@ -101,26 +101,28 @@ async function status() {
 }
 
 async function refresh() {
-  const repo = await fluvyInHacs();
-  if (!repo) throw new Error(`${REPOSITORY} is not in HACS`);
+  const repo = await fluvyInMarketplace();
+  if (!repo) throw new Error(`${REPOSITORY} is not in the Marketplace`);
   await ws({ type: 'marketplace/repository/refresh', repository: repo.id });
-  const after = await fluvyInHacs();
+  const after = await fluvyInMarketplace();
   console.log(
-    `HACS sees ${after.available_version ?? '—'} (installed ${after.installed_version ?? '—'})`,
+    `The Marketplace sees ${after.available_version ?? '—'} (installed ${after.installed_version ?? '—'})`,
   );
 }
 
 async function download(version) {
   if (!/^v\d+\.\d+\.\d+$/.test(version ?? ''))
     throw new Error('usage: node tools/dev/ha.mjs download vX.Y.Z');
-  const repo = await fluvyInHacs();
-  if (!repo) throw new Error(`${REPOSITORY} is not in HACS`);
+  const repo = await fluvyInMarketplace();
+  if (!repo) throw new Error(`${REPOSITORY} is not in the Marketplace`);
   await ws({ type: 'marketplace/repository/refresh', repository: repo.id });
   await ws({ type: 'marketplace/repository/install', repository: repo.id, version });
-  const after = await fluvyInHacs();
+  const after = await fluvyInMarketplace();
   if (after.installed_version !== version)
-    throw new Error(`HACS reports ${after.installed_version} after the download, not ${version}`);
-  console.log(`HACS downloaded ${version}; restart Home Assistant to run it`);
+    throw new Error(
+      `The Marketplace reports ${after.installed_version} after the download, not ${version}`,
+    );
+  console.log(`The Marketplace installed ${version}; restart Home Assistant to run it`);
 }
 
 async function restart() {
